@@ -17,7 +17,7 @@ const (
 const (
 	StatusContinue                      = 100
 	StatusSwitchingProtocols            = 101
-	StatusEarlyHings                    = 103
+	StatusEarlyHints                    = 103
 	StatusOK                            = 200
 	StatusAccepted                      = 202
 	StatusNonAuthoritativeInformation   = 203

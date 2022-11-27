@@ -16,7 +16,12 @@ func GetHeaders() *Header {
 	headers := make(map[string][]string)
 
 	for i < 22 {
-		headers[i.String()] = strings.Split(os.Getenv(i.String()), "; ")
+		if i.String() == resources.ContentType.String() {
+			headers[i.String()] = strings.Split(os.Getenv(i.String()), "; ")
+			i++
+			continue
+		}
+		headers[i.String()] = strings.Split(os.Getenv(i.String()), ", ")
 		i++
 	}
 
@@ -47,6 +52,12 @@ func (h *Header) Get(key string) string {
 	return h.headers[key][0]
 }
 
+func (h *Header) Has(key string) bool {
+	_, ok := h.headers[key]
+
+	return ok
+}
+
 func (h *Header) Set(key string, value string) {
 	h.headers[key] = make([]string, 0)
 
@@ -55,4 +66,8 @@ func (h *Header) Set(key string, value string) {
 
 func (h *Header) Values(key string) []string {
 	return h.headers[key]
+}
+
+func (h *Header) Loop() map[string][]string {
+	return h.headers
 }

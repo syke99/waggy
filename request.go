@@ -19,6 +19,7 @@ type WaggyRequest struct {
 }
 
 func Request() *WaggyRequest {
+
 	wr := WaggyRequest{
 		Body:       os.Stdin,
 		URL:        url.GetUrl(),
