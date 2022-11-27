@@ -1,4 +1,4 @@
-package main
+package waggy
 
 type WaggyRouter struct {
 	moduleRoutes [][]Route

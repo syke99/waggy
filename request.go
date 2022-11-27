@@ -1,4 +1,4 @@
-package main
+package waggy
 
 import (
 	"github.com/syke99/waggy/header"
