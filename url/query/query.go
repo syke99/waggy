@@ -1,9 +1,10 @@
 package query
 
 import (
-	"github.com/syke99/waggy/internal/pkg/resources"
 	"net/url"
 	"os"
+
+	"github.com/syke99/waggy/internal/pkg/resources"
 )
 
 type Query struct {
@@ -13,7 +14,7 @@ type Query struct {
 
 func GetQuery() *Query {
 
-	queryStr := os.Getenv(resources.QueryString)
+	queryStr := os.Getenv(resources.QueryString.String())
 
 	queryArgs, _ := url.ParseQuery(queryStr)
 

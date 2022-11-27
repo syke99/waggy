@@ -69,3 +69,29 @@ const (
 	StatusNotExtended                   = 510
 	StatusNetworkAuthenticationRequired = 511
 )
+
+// Headers
+const (
+	FullURL          = "X_FULL_URL"
+	PathInfo         = "PATH_INFO"
+	RawPathInfo      = "X_RAW_PATH_INFO"
+	PathTranslated   = "PATH_TRANSLATED"
+	Host             = "HTTP_HOST"
+	Scheme           = "SERVER_PROTOCOL"
+	Port             = "SERVER_PORT"
+	Name             = "SERVER_NAME"
+	QueryString      = "QUERY_STRING"
+	RequestMethod    = "REQUEST_METHOD"
+	RemoteAddr       = "REMOTE_ADDR"
+	RemoteHost       = "REMOTE_HOST"
+	XMatchedRoute    = "X_MATCHED_ROUTE"
+	HTTPAccept       = "HTTP_ACCEPT"
+	HttpUserAgent    = "HTTP_USER_AGENT"
+	ContentType      = "CONTENT_TYPE"
+	ContentLength    = "CONTENT_LENGTH"
+	ScriptName       = "SCRIPT_NAME"
+	ServerSoftware   = "SERVER_SOFTWARE"
+	AuthType         = "AUTH_TYPE"
+	GatewayInterface = "GATEWAY_INTERFACE"
+	RemoteUser       = "REMOTE_USER"
+)

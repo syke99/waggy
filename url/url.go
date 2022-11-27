@@ -1,37 +1,40 @@
 package url
 
 import (
-	"github.com/syke99/waggy/internal/pkg/resources"
-	"github.com/syke99/waggy/url/query"
 	"os"
 	"strconv"
+
+	"github.com/syke99/waggy/internal/pkg/resources"
+	"github.com/syke99/waggy/url/query"
 )
 
 type URL struct {
-	fullUrl string
-	host    string
-	scheme  string
-	port    string
+	fullUrl     string
+	pathInfo    string
+	rawPathInfo string
+	host        string
+	scheme      string
+	port        string
+	query       *query.Query
 }
 
 func GetUrl() *URL {
 
 	u := URL{
-		fullUrl: os.Getenv(resources.FullURL),
-		host:    os.Getenv(resources.Host),
-		scheme:  os.Getenv(resources.Scheme),
-		port:    os.Getenv(resources.Port),
+		fullUrl:     os.Getenv(resources.FullURL.String()),
+		pathInfo:    os.Getenv(resources.PathInfo.String()),
+		rawPathInfo: os.Getenv(resources.RawPathInfo.String()),
+		host:        os.Getenv(resources.Host.String()),
+		scheme:      os.Getenv(resources.Scheme.String()),
+		port:        os.Getenv(resources.Port.String()),
+		query:       query.GetQuery(),
 	}
 
 	return &u
 }
 
-func (u *URL) Query() *query.Query {
-	return query.GetQuery()
-}
-
 func (u *URL) RawQuery() string {
-	return os.Getenv(resources.QueryString)
+	return os.Getenv(resources.QueryString.String())
 }
 
 func (u *URL) Host() string {
@@ -49,5 +52,9 @@ func (u *URL) Port() int {
 }
 
 func (u *URL) Path() string {
-	return u.fullUrl
+	return u.pathInfo
+}
+
+func (u *URL) RawPath() string {
+	return u.rawPathInfo
 }
