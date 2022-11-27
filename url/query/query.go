@@ -15,7 +15,6 @@ type Query struct {
 
 // GetQuery parses query values and returns a new Query struct containing these values
 func GetQuery() *Query {
-
 	queryStr := os.Getenv(resources.QueryString.String())
 
 	queryArgs, _ := url.ParseQuery(queryStr)

@@ -53,7 +53,6 @@ func (w *WaggyResponseWriter) Write(body []byte) (int, error) {
 // Error composes a response and writes an HTTP Error Response to the WaggyResponseWriter's underlying io.Writer.
 // It calls WriteHeader with the provided statusCode before composing the Error response
 func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
-
 	w.WriteHeader(statusCode)
 
 	w.Header.Set("Content-Type", "application/problem+json")
@@ -72,7 +71,6 @@ func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
 }
 
 func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
-
 	response := make([]byte, 0)
 
 	response = append(response, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusName()))...)

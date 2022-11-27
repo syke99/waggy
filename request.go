@@ -21,7 +21,6 @@ type WaggyRequest struct {
 
 // Request loads the incoming HTTP Request into a new WaggyRequest struct
 func Request() *WaggyRequest {
-
 	wr := WaggyRequest{
 		Body:       os.Stdin,
 		URL:        url.GetUrl(),

@@ -21,7 +21,6 @@ type URL struct {
 
 // GetUrl loads all URL-pertinent values into a new URL struct and returns it
 func GetUrl() *URL {
-
 	u := URL{
 		fullUrl:     os.Getenv(resources.FullURL.String()),
 		pathInfo:    os.Getenv(resources.PathInfo.String()),
