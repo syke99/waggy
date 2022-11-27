@@ -10,7 +10,7 @@ import (
 )
 
 type WaggyResponseWriter struct {
-	status int
+	status resources.StatusCode
 	Header *header.Header
 }
 
@@ -29,7 +29,7 @@ func (w *WaggyResponseWriter) Write(body []byte) (int, error) {
 
 	payload := make([]byte, 0)
 
-	payload = append(payload, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, resources.GetStatusName(w.status)))...)
+	payload = append(payload, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusName()))...)
 
 	headerLines := make([][]byte, 0)
 
@@ -49,5 +49,5 @@ func (w *WaggyResponseWriter) Write(body []byte) (int, error) {
 }
 
 func (w *WaggyResponseWriter) WriteHeader(statusCode int) {
-	w.status = statusCode
+	w.status = resources.StatusCode(statusCode)
 }

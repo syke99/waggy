@@ -54,117 +54,64 @@ func (e Env) String() string {
 	}[e]
 }
 
-func GetStatusName(status int) string {
-	name := ""
+type StatusCode int
 
-	switch status {
-	case 100:
-		name = "Continue"
-	case 101:
-		name = "Switching Protocols"
-	case 103:
-		name = "Early Hints"
-	case 200:
-		name = "OK"
-	case 202:
-		name = "Accepted"
-	case 203:
-		name = "Non Authoritative Information"
-	case 204:
-		name = "No Content"
-	case 205:
-		name = "Reset Content"
-	case 206:
-		name = "Partial Content"
-	case 300:
-		name = "Multiple Choices"
-	case 301:
-		name = "Moved Permanently"
-	case 302:
-		name = "Found"
-	case 303:
-		name = "See Other"
-	case 304:
-		name = "Not Modified"
-	case 307:
-		name = "Temporary Redirect"
-	case 308:
-		name = "Permanent Redirect"
-	case 400:
-		name = "Bad Request"
-	case 401:
-		name = "Unauthorized"
-	case 402:
-		name = "Payment Required"
-	case 403:
-		name = "Forbidden"
-	case 404:
-		name = "Not Found"
-	case 405:
-		name = "Method Not Allowed"
-	case 406:
-		name = "Not Acceptable"
-	case 407:
-		name = "Proxy Authentication Required"
-	case 408:
-		name = "Request Timed Out"
-	case 409:
-		name = "Conflict"
-	case 410:
-		name = "Gone"
-	case 411:
-		name = "Length Required"
-	case 412:
-		name = "Precondition Failed"
-	case 413:
-		name = "Payload Too Large"
-	case 414:
-		name = "URI Too Long"
-	case 415:
-		name = "unsupported Media Type"
-	case 416:
-		name = "Range Not Satisfied"
-	case 417:
-		name = "Expectation Failed"
-	case 418:
-		name = "I'm A Tea Pot"
-	case 422:
-		name = "Unprocessable Entity"
-	case 425:
-		name = "Too Early"
-	case 426:
-		name = "Upgrade Required"
-	case 427:
-		name = "Precondition Required"
-	case 429:
-		name = "Too Many Requests"
-	case 431:
-		name = "Request Header Fields Too Large"
-	case 451:
-		name = "Unavailable For Legal Reasons"
-	case 500:
-		name = "Internal Server Error"
-	case 501:
-		name = "Not Implemented"
-	case 502:
-		name = "Bad Gateway"
-	case 503:
-		name = "Service Unavailable"
-	case 504:
-		name = "Gateway Timeout"
-	case 505:
-		name = "HTTP Version Not Supported"
-	case 506:
-		name = "Variant Also Negotiates"
-	case 507:
-		name = "Insufficient Storage"
-	case 508:
-		name = "Loop Detected"
-	case 510:
-		name = "Not Extended"
-	case 511:
-		name = "Network Authentication Required"
-	}
+var StatusCodes = map[StatusCode]string{
+	100: "Continue",
+	101: "Switching Protocols",
+	103: "Early Hints",
+	200: "OK",
+	202: "Accepted",
+	203: "Non Authoritative Information",
+	204: "No Content",
+	205: "Reset Content",
+	206: "Partial Content",
+	300: "Multiple Choices",
+	301: "Moved Permanently",
+	302: "Found",
+	303: "See Other",
+	304: "Not Modified",
+	307: "Temporary Redirect",
+	308: "Permanent Redirect",
+	400: "Bad Request",
+	401: "Unauthorized",
+	402: "Payment Required",
+	403: "Forbidden",
+	404: "Not Found",
+	405: "Method Not Allowed",
+	406: "Not Acceptable",
+	407: "Proxy Authentication Required",
+	408: "Request Timed Out",
+	409: "Conflict",
+	410: "Gone",
+	411: "Length Required",
+	412: "Precondition Failed",
+	413: "Payload Too Large",
+	414: "URI Too Long",
+	415: "unsupported Media Type",
+	416: "Range Not Satisfied",
+	417: "Expectation Failed",
+	418: "I'm A Tea Pot",
+	422: "Unprocessable Entity",
+	425: "Too Early",
+	426: "Upgrade Required",
+	427: "Precondition Required",
+	429: "Too Many Requests",
+	431: "Request Header Fields Too Large",
+	451: "Unavailable For Legal Reasons",
+	500: "Internal Server Error",
+	501: "Not Implemented",
+	502: "Bad Gateway",
+	503: "Service Unavailable",
+	504: "Gateway Timeout",
+	505: "HTTP Version Not Supported",
+	506: "Variant Also Negotiates",
+	507: "Insufficient Storage",
+	508: "Loop Detected",
+	510: "Not Extended",
+	511: "Network Authentication Required",
+}
 
-	return name
+func (s StatusCode) GetStatusName() string {
+	return StatusCodes[s]
 }
