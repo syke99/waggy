@@ -64,10 +64,6 @@ func (r *WaggyRequest) ParseMultipartForm() error {
 		// attempt to split
 		splitValue := strings.Split(value, "=")
 
-		if len(splitValue) == 1 {
-			continue
-		}
-
 		if splitValue[0] == "boundary" {
 			boundary = splitValue[1]
 			break
