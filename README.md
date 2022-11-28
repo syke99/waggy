@@ -57,8 +57,9 @@ func helloWorldHandler() {
 
 **!!NOTE!!**
 
-To learn more about configuring, routing, compiling, and deploying WAGI routes, please consult 
-the [WAGI](https://github.com/deislabs/wagi/tree/main/docs) docs and the [TinyGo](https://tinygo.org/docs/guides/webassembly/) WASM docs
+To learn more about configuring, routing, compiling, and deploying WAGI routes, as well as
+the limitations of WAGI routes, please consult the [WAGI](https://github.com/deislabs/wagi/tree/main/docs) docs 
+and the [TinyGo](https://tinygo.org/docs/guides/webassembly/) WASM docs
 
 Who?
 ====
