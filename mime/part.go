@@ -8,13 +8,18 @@ import (
 	"sync"
 )
 
+// Part is used for accessing individual parts of a MultipartForm Request body
 type Part struct {
 	body    []byte
 	headers *header.Header
 }
 
-func ParsePart(b []byte) *Part {
-	hBytes, bBytes := separateHeaderAndBodyBytes(b)
+// ParsePart takes the bytes representation of a MultipartForm Part
+// separates the header.Header sections from the body section,
+// automatically parses the header.Header values, and then
+// creates and returns a *Part holding these values
+func ParsePart(part []byte) *Part {
+	hBytes, bBytes := separateHeaderAndBodyBytes(part)
 
 	headers := parseHeaderFromBytes(hBytes)
 
