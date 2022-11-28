@@ -14,6 +14,6 @@ func (m *MultipartForm) Get(key string) *Part {
 	return m.parts[key]
 }
 
-func (m *MultipartForm) Set(key string, part *Part) {
-	m.parts[key] = part
+func (m *MultipartForm) Set(key string, part []byte) {
+	m.parts[key] = ParsePart(part)
 }
