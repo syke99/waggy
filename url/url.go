@@ -8,7 +8,7 @@ import (
 	"github.com/syke99/waggy/url/query"
 )
 
-// URL used for accessing URL specific WaggyRequest values
+// URL used for accessing URL specific Request values
 type URL struct {
 	fullUrl     string
 	pathInfo    string

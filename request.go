@@ -14,8 +14,8 @@ import (
 	"github.com/syke99/waggy/url"
 )
 
-// WaggyRequest used for accessing information about the specific HTTP Request made
-type WaggyRequest struct {
+// Request used for accessing information about the specific HTTP Request made
+type Request struct {
 	body          io.Reader
 	MultipartForm *mime.MultipartForm
 	URL           *url.URL
@@ -24,9 +24,9 @@ type WaggyRequest struct {
 	remoteAddr    string
 }
 
-// Request loads the incoming HTTP Request into a new WaggyRequest struct
-func Request() *WaggyRequest {
-	wr := WaggyRequest{
+// Reqloads the incoming HTTP Request into a new Request struct
+func Req() *Request {
+	wr := Request{
 		body:          os.Stdin,
 		MultipartForm: mime.GetMultipartForm(),
 		URL:           url.GetUrl(),
@@ -38,25 +38,25 @@ func Request() *WaggyRequest {
 	return &wr
 }
 
-// GetBody returns a slice of bytes read from the WaggyRequest's Body
-func (r *WaggyRequest) GetBody() ([]byte, error) {
+// GetBody returns a slice of bytes read from the Request's Body
+func (r *Request) GetBody() ([]byte, error) {
 	return ioutil.ReadAll(r.body)
 }
 
-// Method returns the HTTP Method used in the specific WaggyRequest
-func (r *WaggyRequest) Method() string {
+// Method returns the HTTP Method used in the specific Request
+func (r *Request) Method() string {
 	return r.method
 }
 
 // RemoteAddr returns the client's IP address
-func (r *WaggyRequest) RemoteAddr() string {
+func (r *Request) RemoteAddr() string {
 	return r.remoteAddr
 }
 
-// ParseMultipartForm parses the WaggyRequest's Body as a multipart form and stores each form part
+// ParseMultipartForm parses the Request's Body as a multipart form and stores each form part
 // in a map that is stored in r.MultipartForm. Each form part is stored at a key corresponding to the
 // value supplied in the name portion of the form part's Content-Disposition header
-func (r *WaggyRequest) ParseMultipartForm() error {
+func (r *Request) ParseMultipartForm() error {
 	contentTypeHeaders := r.Header.Values("Content-Type")
 
 	boundary := ""

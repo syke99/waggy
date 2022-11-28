@@ -13,19 +13,19 @@ import (
 	"strings"
 )
 
-// WaggyResponseWriter used for writing an HTTP Response
-type WaggyResponseWriter struct {
+// ResponseWriter used for writing an HTTP Response
+type ResponseWriter struct {
 	status resources.StatusCode
 	Header *header.Header
 	writer io.Writer
 	buffer *bytes.Buffer
 }
 
-// Response initializes a new WaggyResponseWriter to be used to write HTTP Responses
-func Response() *WaggyResponseWriter {
+// Resp initializes a new ResponseWriter to be used to write HTTP Responses
+func Resp() *ResponseWriter {
 	h := header.Header{}
 
-	rw := WaggyResponseWriter{
+	rw := ResponseWriter{
 		status: 0,
 		Header: &h,
 		writer: os.Stdout,
@@ -36,14 +36,14 @@ func Response() *WaggyResponseWriter {
 }
 
 // WriteHeader writes the provided statusCode Header
-func (w *WaggyResponseWriter) WriteHeader(statusCode int) {
+func (w *ResponseWriter) WriteHeader(statusCode int) {
 	w.status = resources.StatusCode(statusCode)
 }
 
-// Write composes a response and writes the response to the WaggyResponseWriter's underlying io.Writer.
+// Write composes a response and writes the response to the ResponseWriter's underlying io.Writer.
 // If a call to WriteHeader has not been made before calling this method, Write will call WriteHeader
 // with the StatusOK (200) HTTP status code
-func (w *WaggyResponseWriter) Write(body []byte) (int, error) {
+func (w *ResponseWriter) Write(body []byte) (int, error) {
 	if w.status == 0 {
 		w.WriteHeader(StatusOK)
 	}
@@ -57,9 +57,9 @@ func (w *WaggyResponseWriter) Write(body []byte) (int, error) {
 	return w.writer.Write(payload)
 }
 
-// Error composes a response and writes an HTTP Error Response to the WaggyResponseWriter's underlying io.Writer.
+// Error composes a response and writes an HTTP Error Response to the ResponseWriter's underlying io.Writer.
 // It calls WriteHeader with the provided statusCode before composing the Error response
-func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
+func (w *ResponseWriter) Error(statusCode int, error string) (int, error) {
 	w.WriteHeader(statusCode)
 
 	w.Header.Set("Content-Type", "application/problem+json")
@@ -77,7 +77,7 @@ func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
 	return os.Stdout.Write(payload)
 }
 
-func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
+func (w *ResponseWriter) buildResponse(payload []byte) []byte {
 	w.buffer.Write([]byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName())))
 
 	headerLines := make([][]byte, 0)
