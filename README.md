@@ -1,4 +1,6 @@
 # Waggy
+[![Go Reference](https://pkg.go.dev/badge/github.com/syke99/waggy.svg)](https://pkg.go.dev/github.com/syke99/waggy)
+[![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
 
 The dead simple, easy-to-use library for writing WAGI (Web Assembly Gateway Interface) API handlers in Go
 
