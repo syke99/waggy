@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/syke99/waggy/header"
+	"github.com/syke99/waggy/mime"
 	"io"
 	"io/ioutil"
 	"os"
@@ -16,7 +17,7 @@ import (
 // WaggyRequest used for accessing information about the specific HTTP Request made
 type WaggyRequest struct {
 	body          io.Reader
-	MultipartForm map[string][]byte
+	MultipartForm *mime.MultipartForm
 	URL           *url.URL
 	Header        *header.Header
 	method        string
@@ -27,7 +28,7 @@ type WaggyRequest struct {
 func Request() *WaggyRequest {
 	wr := WaggyRequest{
 		body:          os.Stdin,
-		MultipartForm: make(map[string][]byte),
+		MultipartForm: mime.GetMultipartForm(),
 		URL:           url.GetUrl(),
 		Header:        header.GetHeaders(),
 		method:        os.Getenv(resources.RequestMethod.String()),
@@ -84,7 +85,7 @@ func (r *WaggyRequest) ParseMultipartForm() error {
 
 			name := strings.Split(string(scanner.Bytes()), " ")[1]
 
-			r.MultipartForm[name] = formPart
+			r.MultipartForm.Set(name, formPart)
 			continue
 		}
 	}
