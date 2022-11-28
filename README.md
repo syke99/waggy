@@ -12,7 +12,7 @@ requests, Waggy was created. It aims to mimic the net/http package's libraries a
 is available in WAGI) to provide a seamless experience whenever switching between writing regular HTTP request handlers and
 WAGI HTTP request handlers.
 
-How do I use go-c2dmc?
+How do I use Waggy?
 ====
 
 ### Installing
