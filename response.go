@@ -1,6 +1,7 @@
 package waggy
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/syke99/waggy/header"
@@ -71,9 +72,9 @@ func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
 }
 
 func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
-	response := make([]byte, 0)
+	buf := bytes.NewBuffer(make([]byte, 0))
 
-	response = append(response, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName()))...)
+	buf.Write([]byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName())))
 
 	headerLines := make([][]byte, 0)
 
@@ -83,19 +84,19 @@ func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
 		}
 
 		if k == resources.ContentType.String() {
-			headerLines = append(headerLines, []byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, "; "))))
+			buf.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, "; "))))
 		}
 
-		headerLines = append(headerLines, []byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))))
+		buf.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))))
 	}
 
 	for _, headerLine := range headerLines {
-		response = append(response, headerLine...)
+		buf.Write(headerLine)
 	}
 
-	response = append(response, []byte("\n")...)
+	buf.Write([]byte("\n"))
 
-	response = append(response, payload...)
+	buf.Write(payload)
 
-	return response
+	return buf.Bytes()
 }
