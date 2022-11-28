@@ -112,6 +112,6 @@ var StatusCodes = map[StatusCode]string{
 	511: "Network Authentication Required",
 }
 
-func (s StatusCode) GetStatusName() string {
+func (s StatusCode) GetStatusCodeName() string {
 	return StatusCodes[s]
 }

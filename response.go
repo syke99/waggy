@@ -73,7 +73,7 @@ func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
 func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
 	response := make([]byte, 0)
 
-	response = append(response, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusName()))...)
+	response = append(response, []byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName()))...)
 
 	headerLines := make([][]byte, 0)
 
