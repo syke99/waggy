@@ -86,7 +86,7 @@ const (
 	RemoteHost       = "REMOTE_HOST"
 	XMatchedRoute    = "X_MATCHED_ROUTE"
 	HTTPAccept       = "HTTP_ACCEPT"
-	HttpUserAgent    = "HTTP_USER_AGENT"
+	HTTPUserAgent    = "HTTP_USER_AGENT"
 	ContentType      = "CONTENT_TYPE"
 	ContentLength    = "CONTENT_LENGTH"
 	ScriptName       = "SCRIPT_NAME"

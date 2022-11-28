@@ -18,13 +18,18 @@ type WaggyResponseWriter struct {
 	status resources.StatusCode
 	Header *header.Header
 	writer io.Writer
+	buffer *bytes.Buffer
 }
 
 // Response initializes a new WaggyResponseWriter to be used to write HTTP Responses
 func Response() *WaggyResponseWriter {
 	h := header.Header{}
 
-	rw := WaggyResponseWriter{Header: &h, writer: os.Stdout}
+	rw := WaggyResponseWriter{
+		Header: &h,
+		writer: os.Stdout,
+		buffer: bytes.NewBuffer(make([]byte, 0)),
+	}
 
 	return &rw
 }
@@ -72,9 +77,7 @@ func (w *WaggyResponseWriter) Error(statusCode int, error string) (int, error) {
 }
 
 func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
-	buf := bytes.NewBuffer(make([]byte, 0))
-
-	buf.Write([]byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName())))
+	w.buffer.Write([]byte(fmt.Sprintf("%s %d %s\n", os.Getenv(resources.Scheme.String()), w.status, w.status.GetStatusCodeName())))
 
 	headerLines := make([][]byte, 0)
 
@@ -84,19 +87,23 @@ func (w *WaggyResponseWriter) buildResponse(payload []byte) []byte {
 		}
 
 		if k == resources.ContentType.String() {
-			buf.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, "; "))))
+			w.buffer.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, "; "))))
 		}
 
-		buf.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))))
+		w.buffer.Write([]byte(fmt.Sprintf("%s: %s\n", k, strings.Join(v, ", "))))
 	}
 
 	for _, headerLine := range headerLines {
-		buf.Write(headerLine)
+		w.buffer.Write(headerLine)
 	}
 
-	buf.Write([]byte("\n"))
+	w.buffer.Write([]byte("\n"))
 
-	buf.Write(payload)
+	w.buffer.Write(payload)
 
-	return buf.Bytes()
+	response := w.buffer.Bytes()
+
+	w.buffer.Reset()
+
+	return response
 }
