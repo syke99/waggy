@@ -1,19 +1,19 @@
 package mime
 
 type MultipartForm struct {
-	parts map[string][]byte
+	parts map[string]*Part
 }
 
 func GetMultipartForm() *MultipartForm {
-	m := MultipartForm{parts: make(map[string][]byte)}
+	m := MultipartForm{parts: make(map[string]*Part)}
 
 	return &m
 }
 
-func (m *MultipartForm) Get(key string) []byte {
+func (m *MultipartForm) Get(key string) *Part {
 	return m.parts[key]
 }
 
 func (m *MultipartForm) Set(key string, part []byte) {
-	m.parts[key] = part
+	m.parts[key] = ParsePart(part)
 }

@@ -4,9 +4,11 @@ import (
 	"github.com/syke99/waggy/internal/pkg/resources"
 	"os"
 	"strings"
+	"sync"
 )
 
 type Header struct {
+	sync.Mutex
 	headers map[string][]string
 }
 
@@ -32,6 +34,10 @@ func GetHeaders() *Header {
 
 // Add appends the value to the slice of strings for the given key
 func (h *Header) Add(key string, value string) {
+	if h.headers == nil {
+		h.headers = make(map[string][]string)
+	}
+
 	if _, ok := h.headers[key]; !ok {
 		h.headers[key] = make([]string, 0)
 
@@ -64,6 +70,10 @@ func (h *Header) Has(key string) bool {
 
 // Set overrides the values stored at the given key with the given value
 func (h *Header) Set(key string, value string) {
+	if h.headers == nil {
+		h.headers = make(map[string][]string)
+	}
+
 	h.headers[key] = make([]string, 0)
 
 	h.headers[key] = append(h.headers[key], value)
