@@ -56,12 +56,14 @@ func (u *URL) Port() int {
 	return p
 }
 
-// Path returns a WAGI-specific representation of the Path; a full explanation can be found here ( https://github.com/deislabs/wagi/blob/main/docs/environment_variables.md )
+// Path returns a WAGI-specific representation of the Path;
+// a full explanation can be found here ( https://github.com/deislabs/wagi/blob/main/docs/environment_variables.md )
 func (u *URL) Path() string {
 	return u.pathInfo
 }
 
-// RawPath returns a WAGI-specific representation of the raw, non url-decoded Path; a full explanation can be found here ( https://github.com/deislabs/wagi/blob/main/docs/environment_variables.md )
+// RawPath returns a WAGI-specific representation of the raw, non url-decoded Path;
+// a full explanation can be found here ( https://github.com/deislabs/wagi/blob/main/docs/environment_variables.md )
 func (u *URL) RawPath() string {
 	return u.rawPathInfo
 }
