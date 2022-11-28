@@ -4,8 +4,5 @@ package waggy
 // to use for writing responses, and a *WaggyRequest to use for
 // retrieving info about the incoming HTTP request
 func Init() (*WaggyResponseWriter, *WaggyRequest) {
-	w := Response()
-	r := Request()
-
-	return w, r
+	return Response(), Request()
 }
