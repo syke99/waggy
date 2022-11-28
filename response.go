@@ -26,6 +26,7 @@ func Response() *WaggyResponseWriter {
 	h := header.Header{}
 
 	rw := WaggyResponseWriter{
+		status: 0,
 		Header: &h,
 		writer: os.Stdout,
 		buffer: bytes.NewBuffer(make([]byte, 0)),
