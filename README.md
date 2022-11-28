@@ -37,7 +37,7 @@ Then simply define your handler
 // but function very similarly
 func helloWorldHandler() {
 	// instead of having a http.ResponseWriter and a http.Request passed
-	// in at the function signature, with Waggy, you much initialize
+	// in at the function signature, with Waggy, you must initialize
 	// them at the beginning of your handler
 	w, r := waggy.Init()
 	
