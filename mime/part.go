@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"github.com/syke99/waggy/header"
 	"strings"
-	"sync"
 )
 
 // Part is used for accessing individual parts of a MultipartForm Request body
@@ -73,19 +72,9 @@ func parseHeaderFromBytes(headerBytes [][]byte) *header.Header {
 		headerKey := splitHeader[0]
 		headerValues := strings.Split(splitHeader[1], ";")
 
-		var wg sync.WaitGroup
-
 		for _, value := range headerValues {
-			go func() {
-				wg.Add(1)
-
-				defer wg.Done()
-
-				h.Add(headerKey, value)
-			}()
+			h.Add(headerKey, value)
 		}
-
-		wg.Wait()
 	}
 
 	return &h
