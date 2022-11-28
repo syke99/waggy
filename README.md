@@ -48,7 +48,7 @@ func helloWorldHandler() {
 	responseBody := fmt.Sprintf("Hello world, my name is %s.", name)
 	
 	if r.URL.Query.Has("goodbye") {
-        body = fmt.Sprintf("%s\n\n Goodbye for now!", responseBody)
+            body = fmt.Sprintf("%s\n\n Goodbye for now!", responseBody)
 	}
 	
 	_, _ := w.Write([]byte(responseBody))
