@@ -83,7 +83,7 @@ func (r *WaggyRequest) ParseMultipartForm() error {
 
 			scanner.Scan()
 
-			name := strings.Split(string(scanner.Bytes()), " ")[1]
+			name := strings.Split(scanner.Text(), " ")[1]
 
 			r.MultipartForm.Set(name, formPart)
 			continue
