@@ -26,10 +26,16 @@ type Request struct {
 
 // Reqloads the incoming HTTP Request into a new Request struct
 func Req(opt ...RouteOption) *Request {
+	params := make(map[int]string)
+
+	if len(opt) != 0 {
+		params = opt[0].pathParams
+	}
+
 	wr := Request{
 		body:          os.Stdin,
 		MultipartForm: mime.GetMultipartForm(),
-		URL:           url.GetUrl(opt[0].pathParams),
+		URL:           url.GetUrl(params),
 		Header:        header.GetHeaders(),
 		method:        os.Getenv(resources.RequestMethod.String()),
 		remoteAddr:    os.Getenv(resources.RemoteAddr.String()),
