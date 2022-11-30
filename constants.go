@@ -70,7 +70,7 @@ const (
 	StatusNetworkAuthenticationRequired = 511
 )
 
-// Headers
+// Header Accessors
 const (
 	FullURL          = "X_FULL_URL"
 	PathInfo         = "PATH_INFO"

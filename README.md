@@ -1,4 +1,6 @@
 # Waggy
+[![Go Reference](https://pkg.go.dev/badge/github.com/syke99/waggy.svg)](https://pkg.go.dev/github.com/syke99/waggy)
+[![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
 
 The dead simple, easy-to-use library for writing WAGI (Web Assembly Gateway Interface) API handlers in Go
 
@@ -57,8 +59,9 @@ func helloWorldHandler() {
 
 **!!NOTE!!**
 
-To learn more about configuring, routing, compiling, and deploying WAGI routes, please consult 
-the [WAGI](https://github.com/deislabs/wagi/tree/main/docs) docs and the [TinyGo](https://tinygo.org/docs/guides/webassembly/) WASM docs
+To learn more about configuring, routing, compiling, and deploying WAGI routes, as well as
+the limitations of WAGI routes, please consult the [WAGI](https://github.com/deislabs/wagi/tree/main/docs) docs 
+and the [TinyGo](https://tinygo.org/docs/guides/webassembly/) WASM docs
 
 Who?
 ====
