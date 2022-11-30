@@ -1,5 +1,7 @@
 package waggy
 
+// WaggyError is provided to help simplify composing the body of
+// an HTTP error response
 type WaggyError struct {
 	Type     string `json:"type"`
 	Title    string `json:"title"`

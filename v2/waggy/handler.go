@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// WaggyHandler is used to handling various http.HandlerFuncs
+// mapped by HTTP methods for an individual route
 type WaggyHandler struct {
 	route          string
 	defResp        []byte
@@ -17,6 +19,8 @@ type WaggyHandler struct {
 	handlerMap     map[string]http.HandlerFunc
 }
 
+// InitHandler initialized a new WaggyHandler and returns
+// a pointer to it
 func InitHandler() *WaggyHandler {
 	w := WaggyHandler{
 		route:          "",
@@ -29,12 +33,16 @@ func InitHandler() *WaggyHandler {
 	return &w
 }
 
+// WithDefaultResponse allows you to set a default response for
+// individual handlers
 func (wh *WaggyHandler) WithDefaultResponse(body []byte) *WaggyHandler {
 	wh.defResp = body
 
 	return wh
 }
 
+// WithDefaultErrorResponse allows you to set a default error response for
+// individual handlers
 func (wh *WaggyHandler) WithDefaultErrorResponse(err WaggyError, statusCode int) *WaggyHandler {
 	wh.defErrResp = err
 	wh.defErrRespCode = statusCode
@@ -42,12 +50,15 @@ func (wh *WaggyHandler) WithDefaultErrorResponse(err WaggyError, statusCode int)
 	return wh
 }
 
+// MethodHandler allows you to map a different handler to each HTTP Method
+// for a single route.
 func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *WaggyHandler {
 	wh.handlerMap[method] = handler
 
 	return wh
 }
 
+// ServeHttp serves the route
 func (wh *WaggyHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
 	splitRoute := strings.Split(wh.route, "/")
 
