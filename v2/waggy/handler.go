@@ -15,6 +15,18 @@ type WaggyHandler struct {
 	handlerMap     map[string]http.HandlerFunc
 }
 
+func InitHandler() *WaggyHandler {
+	w := WaggyHandler{
+		route:          "",
+		defResp:        make([]byte, 0),
+		defErrResp:     nil,
+		defErrRespCode: 0,
+		handlerMap:     make(map[string]http.HandlerFunc),
+	}
+
+	return &w
+}
+
 func (wh *WaggyHandler) WithDefaultResponse(body []byte) *WaggyHandler {
 	wh.defResp = body
 

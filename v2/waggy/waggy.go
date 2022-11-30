@@ -6,18 +6,6 @@ import (
 	"reflect"
 )
 
-func Init(route string) *WaggyHandler {
-	w := WaggyHandler{
-		route:          route,
-		defResp:        make([]byte, 0),
-		defErrResp:     nil,
-		defErrRespCode: 0,
-		handlerMap:     make(map[string]http.HandlerFunc),
-	}
-
-	return &w
-}
-
 type contextKey int
 
 const (
