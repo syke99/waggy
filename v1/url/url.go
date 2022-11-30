@@ -1,8 +1,8 @@
 package url
 
 import (
-	"github.com/syke99/waggy/internal/pkg/resources"
-	"github.com/syke99/waggy/url/query"
+	"github.com/syke99/waggy/v1/internal/pkg/resources"
+	"github.com/syke99/waggy/v1/url/query"
 	"os"
 	"strconv"
 	"strings"

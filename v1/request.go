@@ -1,18 +1,18 @@
-package waggy
+package v1
 
 import (
 	"bufio"
 	"bytes"
-	"github.com/syke99/waggy/header"
-	"github.com/syke99/waggy/mime"
+	"github.com/syke99/waggy/v1/header"
+	"github.com/syke99/waggy/v1/mime"
 	"io"
 	"io/ioutil"
 	m "mime"
 	"os"
 	"strings"
 
-	"github.com/syke99/waggy/internal/pkg/resources"
-	"github.com/syke99/waggy/url"
+	"github.com/syke99/waggy/v1/internal/pkg/resources"
+	"github.com/syke99/waggy/v1/url"
 )
 
 // Request used for accessing information about the specific HTTP Request made

@@ -1,4 +1,4 @@
-package waggy
+package v1
 
 import (
 	"reflect"

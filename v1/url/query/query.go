@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/syke99/waggy/internal/pkg/resources"
+	"github.com/syke99/waggy/v1/internal/pkg/resources"
 )
 
 // Query returns the parsed query values

@@ -1,12 +1,12 @@
-package waggy
+package v1
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/syke99/waggy/header"
-	"github.com/syke99/waggy/internal/pkg/models"
-	"github.com/syke99/waggy/internal/pkg/resources"
+	"github.com/syke99/waggy/v1/header"
+	"github.com/syke99/waggy/v1/internal/pkg/models"
+	"github.com/syke99/waggy/v1/internal/pkg/resources"
 	"io"
 	"net/http"
 	"os"

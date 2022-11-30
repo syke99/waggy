@@ -3,7 +3,7 @@ package mime
 import (
 	"bufio"
 	"bytes"
-	"github.com/syke99/waggy/header"
+	"github.com/syke99/waggy/v1/header"
 	"net/http"
 	"strings"
 )
