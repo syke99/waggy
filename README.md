@@ -18,7 +18,7 @@ How do I use Waggy?
 ====
 
 ### Installing
-To install Waggy, simply run
+To install Waggy in a repo, simply run
 
 ```bash
 $ go get github.com/syke99/waggy
