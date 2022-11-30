@@ -27,22 +27,22 @@ func GetQuery() *Query {
 	return &q
 }
 
-// Get works just like URL.Query.Get() in net/url
+// Get works just like URL.Query().Get() in net/url
 func (q *Query) Get(key string) string {
 	return q.queryArgs.Get(key)
 }
 
-// Has works just like URL.Query.Has() in net/url
+// Has works just like URL.Query().Has() in net/url
 func (q *Query) Has(key string) bool {
 	return q.queryArgs.Has(key)
 }
 
-// Set works just like URL.Query.Set() in net/url
+// Set works just like URL.Query().Set() in net/url
 func (q *Query) Set(key string, value string) {
 	q.queryArgs.Set(key, value)
 }
 
-// Del works just like URL.Query.Del() in net/url
+// Del works just like URL.Query().Del() in net/url
 func (q *Query) Del(key string) {
 	q.queryArgs.Del(key)
 }

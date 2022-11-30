@@ -5,7 +5,7 @@ type MultipartForm struct {
 	parts map[string]*Part
 }
 
-// GetMultipartForm initialized a *MultipartForm
+// GetMultipartForm initializes a *MultipartForm
 func GetMultipartForm() *MultipartForm {
 	m := MultipartForm{parts: make(map[string]*Part)}
 

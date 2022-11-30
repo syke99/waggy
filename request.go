@@ -7,6 +7,7 @@ import (
 	"github.com/syke99/waggy/mime"
 	"io"
 	"io/ioutil"
+	m "mime"
 	"os"
 	"strings"
 
@@ -18,6 +19,7 @@ import (
 type Request struct {
 	body          io.Reader
 	MultipartForm *mime.MultipartForm
+	Form          *mime.Form
 	URL           *url.URL
 	Header        *header.Header
 	method        string
@@ -35,6 +37,7 @@ func Req(opt ...RouteOption) *Request {
 	wr := Request{
 		body:          os.Stdin,
 		MultipartForm: mime.GetMultipartForm(),
+		Form:          mime.GetForm(),
 		URL:           url.GetUrl(params),
 		Header:        header.GetHeaders(),
 		method:        os.Getenv(resources.RequestMethod.String()),
@@ -93,6 +96,34 @@ func (r *Request) ParseMultipartForm() error {
 
 			r.MultipartForm.Set(name, formPart)
 			continue
+		}
+	}
+
+	return err
+}
+
+// ParseForm parses the incoming request's body as a Form
+// and stores it in r for future use
+func (r *Request) ParseForm() error {
+	ct := r.Header.Get("Content-Type")
+
+	ct, _, err := m.ParseMediaType(ct)
+
+	var b []byte
+	if err == nil {
+		b, err = r.GetBody()
+	}
+
+	if err == nil &&
+		ct == "application/x-www-form-urlencoded" {
+		bodyString := string(b)
+
+		splitBody := strings.Split(bodyString, "&")
+
+		for _, formEntry := range splitBody {
+			splitEntry := strings.Split(formEntry, "=")
+
+			r.Form.Add(splitEntry[0], splitEntry[1])
 		}
 	}
 
