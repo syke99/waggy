@@ -25,11 +25,11 @@ type Request struct {
 }
 
 // Reqloads the incoming HTTP Request into a new Request struct
-func Req(opt RouteOption) *Request {
+func Req(opt ...RouteOption) *Request {
 	wr := Request{
 		body:          os.Stdin,
 		MultipartForm: mime.GetMultipartForm(),
-		URL:           url.GetUrl(opt.pathParams),
+		URL:           url.GetUrl(opt[0].pathParams),
 		Header:        header.GetHeaders(),
 		method:        os.Getenv(resources.RequestMethod.String()),
 		remoteAddr:    os.Getenv(resources.RemoteAddr.String()),

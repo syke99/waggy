@@ -3,45 +3,29 @@ package waggy
 import (
 	"reflect"
 	"runtime"
-	"strings"
 )
 
 // Init initializes the request and provides a *ResponseWriter
 // to use for writing responses, and a *Request to use for
 // retrieving info about the incoming HTTP request
 func Init(opts ...func() RouteOption) (*ResponseWriter, *Request) {
-	pathParamOpt := RouteOption{}
+	reqOpts := make([]RouteOption, 1)
+	respOpts := make([]RouteOption, 2)
 
 	for _, v := range opts {
 		switch getFunctionName(v) {
 		case "WithPathParams":
-			pathParamOpt = v()
+			reqOpts[0] = v()
+		case "WithDefaultResponse":
+			respOpts[0] = v()
+		case "WithDefaultErrorResponse":
+			respOpts[1] = v()
 		}
 	}
 
-	return Resp(), Req(pathParamOpt)
+	return Resp(respOpts...), Req(reqOpts...)
 }
 
 func getFunctionName(i interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
-}
-
-func WithPathParams(path string) RouteOption {
-	splitPath := strings.Split(path, "/")
-
-	pathParams := make(map[int]string)
-
-	for pathIndex, pathSection := range splitPath {
-		pathParams[pathIndex] = pathSection
-	}
-
-	opt := RouteOption{
-		pathParams: pathParams,
-	}
-
-	return opt
-}
-
-type RouteOption struct {
-	pathParams map[int]string
 }
