@@ -32,6 +32,20 @@ func GetHeaders() *Header {
 	return &h
 }
 
+// CreateHeader is a convenience function for creating a *Header with
+// the given key and sets the given values to that key
+func CreateHeader(key string, values ...string) *Header {
+	h := Header{
+		headers: make(map[string][]string),
+	}
+
+	for _, value := range values {
+		h.Add(key, value)
+	}
+
+	return &h
+}
+
 // Add appends the value to the slice of strings for the given key
 func (h *Header) Add(key string, value string) {
 	if h.headers == nil {

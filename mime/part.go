@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"github.com/syke99/waggy/header"
+	"net/http"
 	"strings"
 )
 
@@ -25,6 +26,20 @@ func ParsePart(part []byte) *Part {
 	p := Part{
 		body:    bBytes,
 		headers: headers,
+	}
+
+	return &p
+}
+
+// CreatePart is a convenience function for creating a *Part
+// with the provided *header.Header and []byte representation
+// of the body you wish the *Part to have
+func CreatePart(header *header.Header, body []byte) *Part {
+	header.Set("Content-Type", http.DetectContentType(body))
+
+	p := Part{
+		body:    body,
+		headers: header,
 	}
 
 	return &p
