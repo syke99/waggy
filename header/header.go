@@ -4,11 +4,9 @@ import (
 	"github.com/syke99/waggy/internal/pkg/resources"
 	"os"
 	"strings"
-	"sync"
 )
 
 type Header struct {
-	sync.Mutex
 	headers map[string][]string
 }
 
