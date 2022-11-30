@@ -1,11 +1,11 @@
 package url
 
 import (
-	"os"
-	"strconv"
-
 	"github.com/syke99/waggy/internal/pkg/resources"
 	"github.com/syke99/waggy/url/query"
+	"os"
+	"strconv"
+	"strings"
 )
 
 // URL used for accessing URL specific Request values
@@ -13,6 +13,7 @@ type URL struct {
 	fullUrl     string
 	pathInfo    string
 	rawPathInfo string
+	Params      map[string]string
 	host        string
 	scheme      string
 	port        string
@@ -20,15 +21,32 @@ type URL struct {
 }
 
 // GetUrl loads all URL-pertinent values into a new URL struct and returns it
-func GetUrl() *URL {
+func GetUrl(pathParams map[int]string) *URL {
+
 	u := URL{
 		fullUrl:     os.Getenv(resources.FullURL.String()),
 		pathInfo:    os.Getenv(resources.PathInfo.String()),
 		rawPathInfo: os.Getenv(resources.RawPathInfo.String()),
+		Params:      make(map[string]string),
 		host:        os.Getenv(resources.Host.String()),
 		scheme:      os.Getenv(resources.Scheme.String()),
 		port:        os.Getenv(resources.Port.String()),
 		query:       query.GetQuery(),
+	}
+
+	if len(pathParams) != 0 {
+		splitRawPath := strings.Split(u.pathInfo, "/")
+
+		params := make(map[string]string)
+
+		for k, v := range pathParams {
+			if v[:1] == "{" &&
+				v[len(v)-1:] == "}" {
+				params[splitRawPath[k]] = v[1 : len(v)-1]
+			}
+		}
+
+		u.Params = params
 	}
 
 	return &u
