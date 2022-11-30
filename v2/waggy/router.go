@@ -22,6 +22,6 @@ func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) {
 	wr.router[route] = handler
 }
 
-func (wr *WaggyRouter) ServeHttp(w http.ResponseWriter, r *http.Request) {
+func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	wr.router[os.Getenv("X_MATCHED_ROUTE")].ServeHttp(w, r)
 }

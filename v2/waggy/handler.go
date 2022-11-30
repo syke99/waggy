@@ -2,6 +2,8 @@ package waggy
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -10,7 +12,7 @@ import (
 type WaggyHandler struct {
 	route          string
 	defResp        []byte
-	defErrResp     error
+	defErrResp     WaggyError
 	defErrRespCode int
 	handlerMap     map[string]http.HandlerFunc
 }
@@ -19,7 +21,7 @@ func InitHandler() *WaggyHandler {
 	w := WaggyHandler{
 		route:          "",
 		defResp:        make([]byte, 0),
-		defErrResp:     nil,
+		defErrResp:     WaggyError{},
 		defErrRespCode: 0,
 		handlerMap:     make(map[string]http.HandlerFunc),
 	}
@@ -33,7 +35,7 @@ func (wh *WaggyHandler) WithDefaultResponse(body []byte) *WaggyHandler {
 	return wh
 }
 
-func (wh *WaggyHandler) WithDefaultErrorResponse(err error, statusCode int) *WaggyHandler {
+func (wh *WaggyHandler) WithDefaultErrorResponse(err WaggyError, statusCode int) *WaggyHandler {
 	wh.defErrResp = err
 	wh.defErrRespCode = statusCode
 
@@ -66,13 +68,16 @@ func (wh *WaggyHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
 		ctx = context.WithValue(r.Context(), defResp, func(w http.ResponseWriter) (int, error) {
 			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
 
-			return w.Write(wh.defResp)
+			return fmt.Fprintln(w, wh.defResp)
 		})
 	}
 
-	if wh.defErrResp != nil {
+	if wh.defErrResp.Detail != "" {
+
+		errBytes, _ := json.Marshal(wh.defErrResp)
+
 		ctx = context.WithValue(ctx, defErr, func(w http.ResponseWriter) {
-			http.Error(w, wh.defErrResp.Error(), wh.defErrRespCode)
+			fmt.Println(errBytes)
 		})
 	}
 
