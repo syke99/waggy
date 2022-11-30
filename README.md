@@ -43,11 +43,11 @@ func helloWorldHandler() {
 	
 	// then, it's as simple as using the regular net/http library from
 	// the stdlib
-	name := r.URL.Query.Get("name")
+	name := r.URL.Query().Get("name")
 	
 	responseBody := fmt.Sprintf("Hello world, my name is %s.", name)
 	
-	if r.URL.Query.Has("goodbye") {
+	if r.URL.Query().Has("goodbye") {
             body = fmt.Sprintf("%s\n\n Goodbye for now!", responseBody)
 	}
 	

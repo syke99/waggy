@@ -16,7 +16,7 @@ type URL struct {
 	host        string
 	scheme      string
 	port        string
-	Query       *query.Query
+	query       *query.Query
 }
 
 // GetUrl loads all URL-pertinent values into a new URL struct and returns it
@@ -28,10 +28,14 @@ func GetUrl() *URL {
 		host:        os.Getenv(resources.Host.String()),
 		scheme:      os.Getenv(resources.Scheme.String()),
 		port:        os.Getenv(resources.Port.String()),
-		Query:       query.GetQuery(),
+		query:       query.GetQuery(),
 	}
 
 	return &u
+}
+
+func (u *URL) Query() *query.Query {
+	return u.query
 }
 
 // RawQuery returns the query string without being url-decoded
