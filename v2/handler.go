@@ -35,6 +35,21 @@ func InitHandler() *WaggyHandler {
 	return &w
 }
 
+// InitHandlerWithRoute initialized a new WaggyHandler with the provided
+// route and returns a pointer to it. It is intended to be used whenever
+// only compiling an individual *WaggyHandler instead of a full *WaggyRouter
+func InitHandlerWithRoute(route string) *WaggyHandler {
+	w := WaggyHandler{
+		route:          route,
+		defResp:        make([]byte, 0),
+		defErrResp:     WaggyError{},
+		defErrRespCode: 0,
+		handlerMap:     make(map[string]http.HandlerFunc),
+	}
+
+	return &w
+}
+
 // WithDefaultResponse allows you to set a default response for
 // individual handlers
 func (wh *WaggyHandler) WithDefaultResponse(body []byte) *WaggyHandler {
