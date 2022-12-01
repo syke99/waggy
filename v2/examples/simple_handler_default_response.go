@@ -19,7 +19,7 @@ func DefRespHandler(w http.ResponseWriter, r *http.Request) {
 	case "goodbye":
 		fmt.Fprintln(w, "Goodbye for now!!!")
 	case "whatup":
-		wagi.WriteDefaultErrorResponse(w, r)
+		wagi.WriteDefaultResponse(w, r)
 	}
 }
 
