@@ -77,16 +77,21 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 
 // ServeHTTP serves the route
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	splitRoute := strings.Split(wh.route, "/")
+	splitRoute := strings.Split(wh.route[1:], "/")
 
-	splitRequestRoute := strings.Split(os.Getenv(resources.XMatchedRoute.String()), "/")
+	matchedRoute := os.Getenv(resources.XMatchedRoute.String())[1:]
+
+	splitRequestRoute := strings.Split(matchedRoute, "/")
 
 	vars := make(map[string]string)
 
 	for i, section := range splitRoute {
-		if section[:1] == "{" &&
-			section[len(section)-1:] == "}" {
-			vars[section[1:len(section)-1]] = splitRequestRoute[i]
+		beginning := section[:1]
+		middle := section[1 : len(section)-1]
+		end := section[len(section)-1:]
+		if beginning == "{" &&
+			end == "}" {
+			vars[middle] = splitRequestRoute[i]
 		}
 	}
 
@@ -112,8 +117,12 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(vars) != 0 {
-		r.WithContext(context.WithValue(ctx, resources.PathParams, vars))
+		ctx = context.WithValue(ctx, resources.PathParams, vars)
 	}
 
-	wh.handlerMap[os.Getenv(resources.RequestMethod.String())](w, r)
+	r = r.Clone(ctx)
+
+	method := os.Getenv(resources.RequestMethod.String())
+
+	wh.handlerMap[method](w, r)
 }
