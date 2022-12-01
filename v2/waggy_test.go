@@ -67,3 +67,24 @@ func TestVars_Goodbye(t *testing.T) {
 
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), wr.Body.String())
 }
+
+func TestWriteDefaultResponse(t *testing.T) {
+	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
+	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
+
+	defRespHandler := func(w http.ResponseWriter, r *http.Request) {
+		WriteDefaultResponse(w, r)
+	}
+
+	handler := InitHandlerWithRoute(resources.TestRoute).
+		MethodHandler(http.MethodGet, defRespHandler).
+		WithDefaultResponse([]byte(resources.Hello))
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamHello, nil)
+
+	wr := httptest.NewRecorder()
+
+	handler.ServeHTTP(wr, r)
+
+	assert.Equal(t, fmt.Sprintf("%s\n", resources.Hello), wr.Body.String())
+}

@@ -101,7 +101,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx = context.WithValue(ctx, resources.DefResp, func(w http.ResponseWriter) (int, error) {
 			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
 
-			return fmt.Fprintln(w, wh.defResp)
+			return fmt.Fprintln(w, string(wh.defResp))
 		})
 	}
 
@@ -112,7 +112,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/problem+json")
 
 		ctx = context.WithValue(ctx, resources.DefErr, func(w http.ResponseWriter) {
-			fmt.Fprintln(w, errBytes)
+			fmt.Fprintln(w, string(errBytes))
 		})
 	}
 

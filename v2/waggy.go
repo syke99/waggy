@@ -19,12 +19,7 @@ func WriteDefaultResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.NoDefaultResponse.Error())
 	}
 
-	results := reflect.ValueOf(rv).Call([]reflect.Value{reflect.ValueOf(w)})
-
-	if len(results) == 2 &&
-		results[1].Interface().(error) != nil {
-		fmt.Fprintln(w, results[1].Interface().(error).Error())
-	}
+	reflect.ValueOf(rv).Call([]reflect.Value{reflect.ValueOf(w)})
 }
 
 // WriteDefaultErrorResponse returns the result of writing the set
