@@ -8,7 +8,7 @@ import (
 	wagi "github.com/syke99/waggy/v2"
 )
 
-func GreetingRouter(w http.ResponseWriter, r *http.Request) {
+func GreetingRouterHandler(w http.ResponseWriter, r *http.Request) {
 	params := wagi.Vars(r)
 
 	greetingType := params["type"]
@@ -23,7 +23,7 @@ func GreetingRouter(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	greetingHandler := wagi.InitHandler().
-		MethodHandler(http.MethodGet, GreetingRouter)
+		MethodHandler(http.MethodGet, GreetingRouterHandler)
 
 	router := wagi.InitRouter()
 
