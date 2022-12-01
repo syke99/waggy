@@ -1,11 +1,11 @@
-package waggy
+package v2
 
 import (
 	"errors"
 	"net/http"
 	"reflect"
 
-	"github.com/syke99/waggy/v2/waggy/internal/resources"
+	"github.com/syke99/waggy/v2/internal/resources"
 )
 
 // WriteDefaultResponse returns the result (number of bytes written

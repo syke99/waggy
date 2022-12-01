@@ -1,4 +1,4 @@
-package waggy
+package v2
 
 // WaggyError is provided to help simplify composing the body of
 // an HTTP error response

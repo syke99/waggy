@@ -1,10 +1,10 @@
-package waggy
+package v2
 
 import (
 	"net/http"
 	"os"
 
-	"github.com/syke99/waggy/v2/waggy/internal/resources"
+	"github.com/syke99/waggy/v2/internal/resources"
 )
 
 // WaggyRouter is used for routing incoming HTTP requests to

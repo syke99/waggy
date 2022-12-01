@@ -2,7 +2,7 @@ package examples
 
 import (
 	"fmt"
-	"github.com/syke99/waggy/v2/waggy"
+	"github.com/syke99/waggy/v2"
 	"net/http"
 	"net/http/cgi"
 )
@@ -16,11 +16,11 @@ func Goodbye(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	greetingHandler := waggy.InitHandler().
+	greetingHandler := v2.InitHandler().
 		MethodHandler(http.MethodGet, Hello).
 		MethodHandler(http.MethodDelete, Goodbye)
 
-	router := waggy.InitRouter()
+	router := v2.InitRouter()
 
 	router.Handle("/greeting", greetingHandler)
 
