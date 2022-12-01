@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/syke99/waggy/v2/waggy/internal/resources"
 	"net/http"
 	"os"
 	"strings"
@@ -62,7 +63,7 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	splitRoute := strings.Split(wh.route, "/")
 
-	splitRequestRoute := strings.Split(os.Getenv("X_MATCHED_ROUTE"), "/")
+	splitRequestRoute := strings.Split(os.Getenv(resources.XMatchedRoute.String()), "/")
 
 	vars := make(map[string]string)
 
@@ -76,7 +77,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if len(wh.defResp) != 0 {
-		ctx = context.WithValue(r.Context(), defResp, func(w http.ResponseWriter) (int, error) {
+		ctx = context.WithValue(r.Context(), resources.DefResp, func(w http.ResponseWriter) (int, error) {
 			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
 
 			return fmt.Fprintln(w, wh.defResp)
@@ -87,12 +88,12 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		errBytes, _ := json.Marshal(wh.defErrResp)
 
-		ctx = context.WithValue(ctx, defErr, func(w http.ResponseWriter) {
+		ctx = context.WithValue(ctx, resources.DefErr, func(w http.ResponseWriter) {
 			fmt.Println(errBytes)
 		})
 	}
 
-	r.WithContext(context.WithValue(ctx, pathParams, vars))
+	r.WithContext(context.WithValue(ctx, resources.PathParams, vars))
 
-	wh.handlerMap[os.Getenv("REQUEST_METHOD")](w, r)
+	wh.handlerMap[os.Getenv(resources.RequestMethod.String())](w, r)
 }
