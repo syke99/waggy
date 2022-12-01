@@ -35,6 +35,7 @@ import wagi "github.com/syke99/waggy/v2"
 ```
 
 **!!NOTE!!**
+
 v1 of Waggy has been deprecated. While v1 may continue working for you currently, no guarantees are made for 
 future continued success with v1 as it is no longer being maintained. It is advised to use v2 (especially if you
 are wanting to compile an entire server's worth of routes as this functionality is not supported in v1)
