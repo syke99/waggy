@@ -42,7 +42,7 @@ are wanting to compile an entire server's worth of routes as this functionality 
 
 ### Basic usage
 
-Examples of using both WaggyRouters and WaggyHandlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy/tree/main/v2/examples) folder, or in test files.
+Examples of using both WaggyRouters and WaggyHandlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy/tree/main/v2/examples) folder.
 
 **!!NOTE!!**
 
