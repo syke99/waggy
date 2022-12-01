@@ -1,9 +1,9 @@
 package v2
 
 import (
-	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"testing"
 )
@@ -23,11 +23,11 @@ func TestInitHandler(t *testing.T) {
 
 func TestInitHandlerWithRoute(t *testing.T) {
 	// Act
-	w := InitHandlerWithRoute("/test/route")
+	w := InitHandlerWithRoute(resources.TestRoute)
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, "/test/route", w.route)
+	assert.Equal(t, resources.TestRoute, w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
 	assert.IsType(t, WaggyError{}, w.defErrResp)
@@ -37,17 +37,16 @@ func TestInitHandlerWithRoute(t *testing.T) {
 func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 	// Arrange
 	w := InitHandler()
-	testBody := []byte("hello world")
 
 	// Act
-	w.WithDefaultResponse(testBody)
+	w.WithDefaultResponse([]byte(resources.HelloWorld))
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
 	assert.Equal(t, "", w.route)
 	assert.IsType(t, []byte{}, w.defResp)
-	assert.Equal(t, len(testBody), len(w.defResp))
-	assert.Equal(t, string(testBody), string(w.defResp))
+	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
+	assert.Equal(t, resources.HelloWorld, string(w.defResp))
 	assert.IsType(t, WaggyError{}, w.defErrResp)
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
 }
@@ -55,8 +54,8 @@ func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
 	// Arrange
 	w := InitHandler()
-	testErrorType := "/test/route"
-	testErrorDetail := errors.New("this is a test Waggy Error")
+	testErrorType := resources.TestRoute
+	testErrorDetail := resources.TestError
 	testErr := WaggyError{
 		Type:   testErrorType,
 		Title:  "",
@@ -83,10 +82,10 @@ func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
 func TestWaggyHandler_MethodHandler(t *testing.T) {
 	// Arrange
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "hello")
+		fmt.Fprintln(w, resources.Hello)
 	}
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "goodbye")
+		fmt.Fprintln(w, resources.Goodbye)
 	}
 	w := InitHandler()
 
@@ -101,4 +100,13 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	assert.Equal(t, 0, len(w.defResp))
 	assert.IsType(t, WaggyError{}, w.defErrResp)
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
+
+	for k, v := range w.handlerMap {
+		switch k {
+		case http.MethodGet:
+			assert.Equal(t, resources.GetFunctionName(helloHandler), resources.GetFunctionName(v))
+		case http.MethodDelete:
+			assert.Equal(t, resources.GetFunctionName(goodbyeHandler), resources.GetFunctionName(v))
+		}
+	}
 }
