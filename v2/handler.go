@@ -93,7 +93,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	if len(wh.defResp) != 0 {
-		ctx = context.WithValue(r.Context(), resources.DefResp, func(w http.ResponseWriter) (int, error) {
+		ctx = context.WithValue(ctx, resources.DefResp, func(w http.ResponseWriter) (int, error) {
 			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
 
 			return fmt.Fprintln(w, wh.defResp)
@@ -111,7 +111,9 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	r.WithContext(context.WithValue(ctx, resources.PathParams, vars))
+	if len(vars) != 0 {
+		r.WithContext(context.WithValue(ctx, resources.PathParams, vars))
+	}
 
 	wh.handlerMap[os.Getenv(resources.RequestMethod.String())](w, r)
 }
