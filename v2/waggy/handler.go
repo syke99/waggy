@@ -58,8 +58,8 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 	return wh
 }
 
-// ServeHttp serves the route
-func (wh *WaggyHandler) ServeHttp(w http.ResponseWriter, r *http.Request) {
+// ServeHTTP serves the route
+func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	splitRoute := strings.Split(wh.route, "/")
 
 	splitRequestRoute := strings.Split(os.Getenv("X_MATCHED_ROUTE"), "/")

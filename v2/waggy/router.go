@@ -35,5 +35,5 @@ func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) {
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
 func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	wr.router[os.Getenv("X_MATCHED_ROUTE")].ServeHttp(w, r)
+	wr.router[os.Getenv("X_MATCHED_ROUTE")].ServeHTTP(w, r)
 }
