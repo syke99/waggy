@@ -104,6 +104,8 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		errBytes, _ := json.Marshal(wh.defErrResp)
 
+		w.Header().Set("Content-Type", "application/problem+json")
+
 		ctx = context.WithValue(ctx, resources.DefErr, func(w http.ResponseWriter) {
 			fmt.Println(errBytes)
 		})
