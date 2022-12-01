@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/syke99/waggy/v2/internal/resources"
@@ -63,12 +64,15 @@ func TestVars_Goodbye(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 
+	// Act
 	handler.ServeHTTP(wr, r)
 
+	// Assert
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), wr.Body.String())
 }
 
 func TestWriteDefaultResponse(t *testing.T) {
+	// Arrange
 	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
@@ -84,7 +88,42 @@ func TestWriteDefaultResponse(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 
+	// Act
 	handler.ServeHTTP(wr, r)
 
+	// Assault
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Hello), wr.Body.String())
+}
+
+func TestWriteDefaultErrorResponse(t *testing.T) {
+	// Arrange
+	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
+	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
+
+	testErr := WaggyError{
+		Type:   resources.TestRoute,
+		Title:  "",
+		Detail: resources.TestError.Error(),
+		Status: 0,
+	}
+
+	defRespHandler := func(w http.ResponseWriter, r *http.Request) {
+		WriteDefaultErrorResponse(w, r)
+	}
+
+	handler := InitHandlerWithRoute(resources.TestRoute).
+		MethodHandler(http.MethodGet, defRespHandler).
+		WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamHello, nil)
+
+	wr := httptest.NewRecorder()
+
+	errBytes, _ := json.Marshal(testErr)
+
+	// Act
+	handler.ServeHTTP(wr, r)
+
+	// Assert
+	assert.Equal(t, fmt.Sprintf("%s\n", string(errBytes)), wr.Body.String())
 }
