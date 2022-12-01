@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/syke99/waggy/v2/waggy/internal/resources"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/syke99/waggy/v2/waggy/internal/resources"
 )
 
 // WaggyHandler is used to handling various http.HandlerFuncs

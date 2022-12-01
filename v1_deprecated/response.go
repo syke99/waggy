@@ -1,4 +1,4 @@
-package v1
+package v1_deprecated
 
 import (
 	"bytes"
