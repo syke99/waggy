@@ -11,10 +11,13 @@ func GetFunctionName(i interface{}) string {
 }
 
 const (
-	Hello      = "hello"
-	Goodbye    = "goodbye"
-	TestRoute  = "/test/route"
-	HelloWorld = "hello world"
+	Hello                     = "hello"
+	Goodbye                   = "goodbye"
+	TestRoute                 = "/test/route"
+	TestRoutePathParams       = "/test/route/{param}"
+	TestRoutePathParamHello   = "/test/route/hello"
+	TestRoutePathParamGoodbye = "/test/route/goodbye"
+	HelloWorld                = "hello world"
 )
 
 var (
