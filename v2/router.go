@@ -13,7 +13,6 @@ import (
 // you provide
 type WaggyRouter struct {
 	router map[string]*WaggyHandler
-	WaggyEntryPoint
 }
 
 // InitRouter initializes a new WaggyRouter and returns a pointer
