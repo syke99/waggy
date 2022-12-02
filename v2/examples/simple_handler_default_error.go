@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func DefErrorHandler(w http.ResponseWriter, r *http.Request) {
+func defErrorHandler(w http.ResponseWriter, r *http.Request) {
 	params := wagi.Vars(r)
 
 	greetingType := params["type"]
@@ -31,7 +31,7 @@ func main() {
 	}
 
 	greetingHandler := wagi.InitHandlerWithRoute("/greeting/{type}").
-		MethodHandler(http.MethodGet, DefErrorHandler).
+		MethodHandler(http.MethodGet, defErrorHandler).
 		WithDefaultResponse([]byte("So what's good?")).
 		WithDefaultErrorResponse(defaultError, http.StatusBadRequest)
 

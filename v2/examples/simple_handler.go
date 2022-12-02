@@ -6,18 +6,18 @@ import (
 	"net/http"
 )
 
-func HandlerHello(w http.ResponseWriter, r *http.Request) {
+func handlerHello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello")
 }
 
-func HandlerGoodbye(w http.ResponseWriter, r *http.Request) {
+func handlerGoodbye(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Goodbye")
 }
 
 func main() {
 	greetingHandler := wagi.InitHandlerWithRoute("/greeting").
-		MethodHandler(http.MethodGet, HandlerHello).
-		MethodHandler(http.MethodDelete, HandlerGoodbye)
+		MethodHandler(http.MethodGet, handlerHello).
+		MethodHandler(http.MethodDelete, handlerGoodbye)
 
 	_ = wagi.Serve(greetingHandler)
 }

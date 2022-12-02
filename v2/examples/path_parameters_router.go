@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func RouterPathParamsHandler(w http.ResponseWriter, r *http.Request) {
+func routerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
 	params := wagi.Vars(r)
 
 	greetingType := params["type"]
@@ -21,7 +21,7 @@ func RouterPathParamsHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	greetingHandler := wagi.InitHandler().
-		MethodHandler(http.MethodGet, RouterPathParamsHandler)
+		MethodHandler(http.MethodGet, routerPathParamsHandler)
 
 	router := wagi.InitRouter()
 
