@@ -23,7 +23,7 @@ func defErrorHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func ExampleDefaultError() {
 	defaultError := wagi.WaggyError{
 		Type:   "/greeting",
 		Detail: "no type parameter provided",

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func _HandlerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
+func handlerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
 	params := wagi.Vars(r)
 
 	greetingType := params["type"]
@@ -19,9 +19,9 @@ func _HandlerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func ExampleHandlerPathParams() {
 	greetingHandler := wagi.InitHandlerWithRoute("/greeting/{type}").
-		MethodHandler(http.MethodGet, _HandlerPathParamsHandler)
+		MethodHandler(http.MethodGet, handlerPathParamsHandler)
 
 	_ = wagi.Serve(greetingHandler)
 }

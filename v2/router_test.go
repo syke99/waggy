@@ -81,7 +81,7 @@ func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
 
 	wr.Handle(resources.TestRoute, wh)
 
-	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
+	r, _ := http.NewRequest(http.MethodDelete, resources.TestRoute, nil)
 
 	rr := httptest.NewRecorder()
 

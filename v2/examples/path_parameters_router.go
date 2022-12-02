@@ -19,7 +19,7 @@ func routerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func ExampleRouterPathParams() {
 	greetingHandler := wagi.InitHandler().
 		MethodHandler(http.MethodGet, routerPathParamsHandler)
 

@@ -21,7 +21,7 @@ func defRespHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func ExampleDefaultResponse() {
 	greetingHandler := wagi.InitHandlerWithRoute("/greeting/{type}").
 		MethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultResponse([]byte("So what's good?"))
