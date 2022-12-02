@@ -2,10 +2,8 @@ package examples
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/cgi"
-
 	wagi "github.com/syke99/waggy/v2"
+	"net/http"
 )
 
 func DefErrorHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,5 +35,5 @@ func main() {
 		WithDefaultResponse([]byte("So what's good?")).
 		WithDefaultErrorResponse(defaultError, http.StatusBadRequest)
 
-	_ = cgi.Serve(greetingHandler)
+	_ = wagi.Serve(greetingHandler)
 }

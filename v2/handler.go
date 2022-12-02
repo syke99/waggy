@@ -19,6 +19,7 @@ type WaggyHandler struct {
 	defErrResp     WaggyError
 	defErrRespCode int
 	handlerMap     map[string]http.HandlerFunc
+	WaggyEntryPoint
 }
 
 // InitHandler initialized a new WaggyHandler and returns

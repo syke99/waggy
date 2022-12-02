@@ -2,10 +2,8 @@ package examples
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/cgi"
-
 	wagi "github.com/syke99/waggy/v2"
+	"net/http"
 )
 
 func HandlerPathParamsHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +23,5 @@ func main() {
 	greetingHandler := wagi.InitHandlerWithRoute("/greeting/{type}").
 		MethodHandler(http.MethodGet, HandlerPathParamsHandler)
 
-	_ = cgi.Serve(greetingHandler)
+	_ = wagi.Serve(greetingHandler)
 }

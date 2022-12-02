@@ -2,10 +2,8 @@ package examples
 
 import (
 	"fmt"
-	"net/http"
-	"net/http/cgi"
-
 	wagi "github.com/syke99/waggy/v2"
+	"net/http"
 )
 
 func RouterHello(w http.ResponseWriter, r *http.Request) {
@@ -25,5 +23,5 @@ func main() {
 
 	router.Handle("/greeting", greetingHandler)
 
-	_ = cgi.Serve(router)
+	_ = wagi.Serve(router)
 }
