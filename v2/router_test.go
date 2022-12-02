@@ -73,7 +73,7 @@ func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	os.Setenv(resources.RequestMethod.String(), http.MethodDelete)
 
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, resources.Hello)
+		fmt.Fprintln(w, resources.Goodbye)
 	}
 
 	wh := InitHandler().
