@@ -2,11 +2,9 @@ package v2
 
 import (
 	"fmt"
+	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"net/http/cgi"
-	"reflect"
-
-	"github.com/syke99/waggy/v2/internal/resources"
 )
 
 // WaggyEntryPoint is used as a type constraint whenever calling
@@ -28,7 +26,13 @@ func WriteDefaultResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.NoDefaultResponse.Error())
 	}
 
-	reflect.ValueOf(rv).Call([]reflect.Value{reflect.ValueOf(w)})
+	fn := rv.(func(wr http.ResponseWriter) (int, error))
+
+	_, err := fn(w)
+
+	if err != nil {
+		fmt.Fprintln(w, err)
+	}
 }
 
 // WriteDefaultErrorResponse returns the result of writing the set
@@ -41,10 +45,12 @@ func WriteDefaultErrorResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.NoDefaultErrorResponse.Error())
 	}
 
-	results := reflect.ValueOf(rv).Call([]reflect.Value{reflect.ValueOf(w)})
+	fn := rv.(func(wr http.ResponseWriter) (int, error))
 
-	if len(results) != 0 {
-		fmt.Fprintln(w, results[0].Interface().(error).Error())
+	_, err := fn(w)
+
+	if err != nil {
+		fmt.Fprintln(w, err)
 	}
 }
 
