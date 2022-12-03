@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
         go: [1.16, 1.17, 1.18]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -25,11 +25,9 @@ jobs:
           go-version: ${{ matrix.go }}
 
       - name: Build
-        uses: actions/checkout@v2
         run: go install
 
       - name: Test
-        uses: actions/checkout@v2
         run: |
           go test -v -cover ./... -coverprofile coverage.out -coverpkg ./...
           go tool cover -func coverage.out -o coverage.out  # Replaces coverage.out with the analysis of coverage.out
