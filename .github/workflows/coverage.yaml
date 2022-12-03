@@ -31,6 +31,9 @@ jobs:
           skip_checkout: true
           file_pattern: ./README.md
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+
       - name: Push Changes
         if: steps.auto-commit-action.outputs.changes_detected == 'true'
         uses: ad-m/github-push-action@master
