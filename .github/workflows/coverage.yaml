@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        go: [1.16, 1.17]
+        go: [1.16, 1.17, 1.18]
     steps:
       - uses: actions/checkout@v2
 
@@ -29,12 +29,12 @@ jobs:
 
       - name: Test
         run: |
-          go test -v -cover ./... -coverprofile coverage.out -coverpkg ./...
+          go test -v -cover ./v2/... -coverprofile coverage.out -coverpkg ./v2/...
           go tool cover -func coverage.out -o coverage.out  # Replaces coverage.out with the analysis of coverage.out
 
       - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v1
-        if: ${{ runner.os == 'Linux' && matrix.go == '1.17' }} # Runs this on only one of the ci builds.
+        uses: jpoles1/gopherbadger@latest
+        if: ${{ runner.os == 'Linux' && matrix.go == '1.18' }} # Runs this on only one of the ci builds.
         with:
           green: 80
           filename: coverage.out
