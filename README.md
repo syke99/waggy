@@ -1,5 +1,6 @@
 # Waggy
 [![Go Reference](https://pkg.go.dev/badge/github.com/syke99/waggy.svg)](https://pkg.go.dev/github.com/syke99/waggy)
+[![GolangCI](https://golangci.com/badges/github.com/manigandand/adk.svg)](https://golangci.com/r/github.com/syke99/waggy)
 [![go reportcard](https://goreportcard.com/badge/github.com/syke99/waggy)](https://goreportcard.com/report/github.com/syke99/waggy)
 [![codecov](https://codecov.io/gh/syke99/waggy/branch/update-CI-for-codecov/graph/badge.svg?token=KDYH3JO1QI)](https://codecov.io/gh/syke99/waggy)
 [![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
