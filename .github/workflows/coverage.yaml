@@ -1,33 +1,17 @@
-name: Go  # The name of the workflow that will appear on Github
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
+on: [push, pull_request]
+name: Test Go Coverage
 jobs:
-
-  build:
-    runs-on: ${{ matrix.os }}
+  test:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        go: [1.16, 1.17, 1.18]
+        go-version: [1.18.x, 1.19.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.go }}
-
-      - name: Build
-        run: go install
-
-      - name: Test
+          go-version: ${{ matrix.go-version }}
+      - uses: actions/checkout@v3
         run: |
           go test -v -cover ./... -coverprofile coverage.out -coverpkg ./...
           go tool cover -func coverage.out -o coverage.out  # Replaces coverage.out with the analysis of coverage.out
