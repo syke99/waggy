@@ -11,7 +11,7 @@ import (
 // Serve so that only a *WaggyRouter or *WaggyHandler can
 // be used and not a bare http.Handler
 type WaggyEntryPoint interface {
-	*WaggyRouter | *WaggyHandler
+	WaggyRouter | WaggyHandler
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
