@@ -14,18 +14,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           go test -v -cover ./... -coverprofile coverage.out -coverpkg ./...
-          runningOs=""
-          if [[ ${{ matrix.os }} = "ubuntu-latest" ]]
-          then runningOs=linux
-          elif [[ ${{ matrix.os }} = "macos-latest" ]]
-          then runningOs=macos
-          else [[ ${{ matrix.os }} = "windows-latest" ]]
-          then runningOs=windows
-          fi
-          curl -Os https://uploader.codecov.io/latest/$runningOs/codecov
-            chmod +x codecov
-            ./codecov -t CODECOV_TOKEN=8d8c499f-0f11-4f24-9290-c7306cbe1ce2
-          go tool cover -func coverage.out -o coverage.out  # Replaces coverage.out with the analysis of coverage.out
 
       - name: Go Coverage Badge
         uses: tj-actions/coverage-badge-go@v1
@@ -42,12 +30,12 @@ jobs:
           skip_checkout: true
           file_pattern: ./README.md
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-
       - name: Push Changes
         if: steps.auto-commit-action.outputs.changes_detected == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ github.token }}
           branch: ${{ github.ref }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
