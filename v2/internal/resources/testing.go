@@ -13,6 +13,7 @@ func GetFunctionName(i interface{}) string {
 const (
 	Hello                     = "hello"
 	Goodbye                   = "goodbye"
+	WhereAmI                  = "where am I?"
 	TestRoute                 = "/test/route"
 	TestRoutePathParams       = "/test/route/{param}"
 	TestRoutePathParamHello   = "/test/route/hello"

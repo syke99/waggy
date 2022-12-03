@@ -24,6 +24,8 @@ func TestVars_Hello(t *testing.T) {
 			fmt.Fprintln(w, resources.Hello)
 		case resources.Goodbye:
 			fmt.Fprintln(w, resources.Goodbye)
+		case "":
+			fmt.Fprintln(w, resources.WhereAmI)
 		}
 	}
 
@@ -38,6 +40,7 @@ func TestVars_Hello(t *testing.T) {
 	handler.ServeHTTP(wr, r)
 
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Hello), wr.Body.String())
+	assert.Equal(t, http.StatusOK, wr.Code)
 }
 
 func TestVars_Goodbye(t *testing.T) {
@@ -53,6 +56,8 @@ func TestVars_Goodbye(t *testing.T) {
 			fmt.Fprintln(w, resources.Hello)
 		case resources.Goodbye:
 			fmt.Fprintln(w, resources.Goodbye)
+		case "":
+			fmt.Fprintln(w, resources.WhereAmI)
 		}
 	}
 
@@ -69,6 +74,39 @@ func TestVars_Goodbye(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), wr.Body.String())
+}
+
+func TestVars_NoPathParams(t *testing.T) {
+	// Arrange
+	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
+	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
+
+	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
+		params := Vars(r)
+
+		switch params["param"] {
+		case resources.Hello:
+			fmt.Fprintln(w, resources.Hello)
+		case resources.Goodbye:
+			fmt.Fprintln(w, resources.Goodbye)
+		case "":
+			fmt.Fprintln(w, resources.WhereAmI)
+		}
+	}
+
+	handler := InitHandlerWithRoute(resources.TestRoute)
+
+	handler.MethodHandler(http.MethodGet, greetingHandler)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
+
+	wr := httptest.NewRecorder()
+
+	// Act
+	handler.ServeHTTP(wr, r)
+
+	// Assert
+	assert.Equal(t, fmt.Sprintf("%s\n", resources.WhereAmI), wr.Body.String())
 }
 
 func TestWriteDefaultResponse(t *testing.T) {
@@ -126,4 +164,8 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 
 	// Assert
 	assert.Equal(t, fmt.Sprintf("%s\n", string(errBytes)), wr.Body.String())
+}
+
+func TestServe(t *testing.T) {
+
 }
