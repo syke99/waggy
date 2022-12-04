@@ -15,13 +15,14 @@ import (
 // WaggyHandler is used to handling various http.HandlerFuncs
 // mapped by HTTP methods for an individual route
 type WaggyHandler struct {
-	route          string
-	defResp        []byte
-	defErrResp     WaggyError
-	defErrRespCode int
-	handlerMap     map[string]http.HandlerFunc
-	logger         *Logger
-	parentLogger   *Logger
+	route                string
+	defResp              []byte
+	defErrResp           WaggyError
+	defErrRespCode       int
+	handlerMap           map[string]http.HandlerFunc
+	logger               *Logger
+	parentLogger         *Logger
+	parentLoggerOverride bool
 }
 
 // InitHandler initialized a new WaggyHandler and returns
@@ -56,20 +57,43 @@ func InitHandlerWithRoute(route string) *WaggyHandler {
 }
 
 // Logger returns the WaggyHandler's Logger. If no parent logger is
-// inherited from a WaggyRouter, or you provide OverrideParentLogger,
-// then the WaggyHandler's Logger will be returned. If no logger has been
-// set, then this method will return nil
-func (wh *WaggyHandler) Logger(parentOverride ParentLoggerOverrider) *Logger {
+// inherited from a WaggyRouter, or you provided a OverrideParentLogger
+// whenever adding a Logger to the WaggyHandler, then the WaggyHandler's
+// Logger will be returned. If no logger has been set, then this method
+// will return nil
+func (wh *WaggyHandler) Logger() *Logger {
 	if wh.parentLogger == nil ||
-		(wh.logger != nil && parentOverride()) {
+		(wh.logger != nil && wh.parentLoggerOverride) {
 		return wh.logger
 	}
 	return wh.parentLogger
 }
 
 // WithLogger allows you to set a logger for wh
-func (wh *WaggyHandler) WithLogger(logger *Logger) *WaggyHandler {
+func (wh *WaggyHandler) WithLogger(logger *Logger, parentOverride ParentLoggerOverrider) *WaggyHandler {
 	wh.logger = logger
+	if parentOverride == nil {
+		wh.parentLoggerOverride = false
+		return wh
+	}
+
+	wh.parentLoggerOverride = parentOverride()
+
+	return wh
+}
+
+// WithDefaultLogger sets wh's logger to the default Logger
+func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
+	l := Logger{
+		logLevel: Info.level(),
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stderr,
+	}
+
+	wh.logger = &l
 
 	return wh
 }
@@ -109,7 +133,7 @@ func (wh *WaggyHandler) FileServer(filePath string) FileServer {
 	return func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open(filePath)
 		if err != nil {
-			wh.Logger(nil).
+			wh.Logger().
 				Err(err).
 				Msg("Method:", "ServeFile").
 				Log()
@@ -123,7 +147,7 @@ func (wh *WaggyHandler) FileServer(filePath string) FileServer {
 
 		_, err = file.Read(cTBuf)
 		if err != nil {
-			wh.Logger(nil).
+			wh.Logger().
 				Err(err).
 				Msg("Method:", "ServeFile").
 				Log()
@@ -138,7 +162,7 @@ func (wh *WaggyHandler) FileServer(filePath string) FileServer {
 		w.Header().Set("content-type", cTType)
 
 		if _, err = io.Copy(w, file); err != nil {
-			wh.Logger(nil).
+			wh.Logger().
 				Err(err).
 				Msg("Method:", "ServeFile").
 				Log()

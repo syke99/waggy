@@ -36,6 +36,84 @@ func TestWaggyRouter_Handle(t *testing.T) {
 	assert.IsType(t, &WaggyHandler{}, w.router["/goodbye"])
 }
 
+func TestWaggyRouter_WithLogger(t *testing.T) {
+	// Arrange
+	w := InitRouter()
+
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	l := NewLogger(testLogLevel, testLog)
+
+	// Act
+	w.WithLogger(l)
+
+	// Assert
+	assert.IsType(t, &Logger{}, w.logger)
+	assert.Equal(t, Info.level(), w.logger.logLevel)
+	assert.Equal(t, "", w.logger.key)
+	assert.Equal(t, "", w.logger.message)
+	assert.Equal(t, "", w.logger.err)
+	assert.Equal(t, 0, len(w.logger.vals))
+	assert.Equal(t, resources.TestLogFile, w.logger.log)
+}
+
+func TestWaggyRouter_WithDefaultLogger(t *testing.T) {
+	// Arrange
+	w := InitRouter()
+
+	// Act
+	w.WithDefaultLogger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, w.logger)
+	assert.Equal(t, Info.level(), w.logger.logLevel)
+	assert.Equal(t, "", w.logger.key)
+	assert.Equal(t, "", w.logger.message)
+	assert.Equal(t, "", w.logger.err)
+	assert.Equal(t, 0, len(w.logger.vals))
+	assert.Equal(t, os.Stderr, w.logger.log)
+}
+
+func TestWaggyRouter_Logger(t *testing.T) {
+	// Arrange
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitRouter().
+		WithLogger(testLogger)
+
+	// Act
+	l := w.Logger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, l)
+	assert.Equal(t, Info.level(), l.logLevel)
+	assert.Equal(t, "", l.key)
+	assert.Equal(t, "", l.message)
+	assert.Equal(t, "", l.err)
+	assert.Equal(t, 0, len(l.vals))
+	assert.Equal(t, resources.TestLogFile, l.log)
+}
+
+func TestWaggyRouter_Logger_Default(t *testing.T) {
+	// Arrange
+	w := InitRouter().
+		WithDefaultLogger()
+
+	// Act
+	l := w.Logger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, l)
+	assert.Equal(t, Info.level(), l.logLevel)
+	assert.Equal(t, "", l.key)
+	assert.Equal(t, "", l.message)
+	assert.Equal(t, "", l.err)
+	assert.Equal(t, 0, len(l.vals))
+	assert.Equal(t, os.Stderr, l.log)
+}
+
 func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	wr := InitRouter()
