@@ -1,10 +1,11 @@
-package v2
+package waggy
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/syke99/waggy/v2/internal/resources"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestOverrideParentLogger(t *testing.T) {

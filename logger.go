@@ -1,4 +1,4 @@
-package v2
+package waggy
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package v2
+package waggy
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/syke99/waggy/v2/internal/resources"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 // WaggyHandler is used to handling various http.HandlerFuncs

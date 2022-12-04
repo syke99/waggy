@@ -1,13 +1,14 @@
-package v2
+package waggy
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestInitRouter(t *testing.T) {

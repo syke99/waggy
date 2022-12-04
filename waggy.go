@@ -1,10 +1,11 @@
-package v2
+package waggy
 
 import (
 	"fmt"
-	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"net/http/cgi"
+
+	"github.com/syke99/waggy/internal/resources"
 )
 
 // WaggyEntryPoint is used as a type constraint whenever calling
