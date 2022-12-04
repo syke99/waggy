@@ -137,20 +137,20 @@ func (wh *WaggyHandler) FileServer(filePath string) (FileServer, error) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open(filePath)
-		if err != nil {
-			wh.Logger().
-				Err(err).
-				Msg("Method:", "ServeFile").
-				Log()
-
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Header().Set("content-type", "text/plain")
-			w.Write([]byte("Error opening file"))
-		}
 
 		cTBuf := make([]byte, 0, 512)
 
-		_, err = file.Read(cTBuf)
+		if err == nil {
+			_, err = file.Read(cTBuf)
+		}
+
+		cTType := ""
+		if err == nil {
+			cTType = http.DetectContentType(cTBuf)
+			w.Header().Set("content-type", cTType)
+			_, err = io.Copy(w, file)
+		}
+
 		if err != nil {
 			wh.Logger().
 				Err(err).
@@ -159,22 +159,7 @@ func (wh *WaggyHandler) FileServer(filePath string) (FileServer, error) {
 
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Header().Set("content-type", "text/plain")
-			w.Write([]byte("Error reading file"))
-		}
-
-		cTType := http.DetectContentType(cTBuf)
-
-		w.Header().Set("content-type", cTType)
-
-		if _, err = io.Copy(w, file); err != nil {
-			wh.Logger().
-				Err(err).
-				Msg("Method:", "ServeFile").
-				Log()
-
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Header().Set("content-type", "text/plain")
-			w.Write([]byte("Error returning file"))
+			w.Write([]byte("Error serving file"))
 		}
 	}, nil
 }
