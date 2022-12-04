@@ -166,6 +166,24 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s\n", string(errBytes)), wr.Body.String())
 }
 
-func TestServe(t *testing.T) {
+func TestServe_Router(t *testing.T) {
+	// Arrange
+	w := InitRouter()
 
+	// Act
+	err := Serve(w)
+
+	// Assert
+	assert.Error(t, err)
+}
+
+func TestServe_Handler(t *testing.T) {
+	// Arrange
+	w := InitHandler()
+
+	// Act
+	err := Serve(w)
+
+	// Assert
+	assert.Error(t, err)
 }
