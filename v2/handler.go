@@ -73,6 +73,22 @@ func (wh *WaggyHandler) WithLogger(logger *Logger) *WaggyHandler {
 	return wh
 }
 
+// WithDefaultLogger sets wh's logger to the default Logger
+func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
+	l := Logger{
+		logLevel: "INFO",
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stderr,
+	}
+
+	wh.logger = &l
+
+	return wh
+}
+
 func (wh *WaggyHandler) inheritLogger(lp *Logger) {
 	wh.parentLogger = lp
 }

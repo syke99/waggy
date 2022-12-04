@@ -47,6 +47,22 @@ func (wr *WaggyRouter) WithLogger(logger *Logger) *WaggyRouter {
 	return wr
 }
 
+// WithDefaultLogger sets wr's logger to the default Logger
+func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
+	l := Logger{
+		logLevel: "INFO",
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stderr,
+	}
+
+	wr.logger = &l
+
+	return wr
+}
+
 // Logger returns the WaggyRouter's logger
 func (wr *WaggyRouter) Logger() *Logger {
 	return wr.logger

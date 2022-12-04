@@ -20,16 +20,18 @@ type Logger struct {
 	message    string
 	err        string
 	loggerPath string
+	vals       map[string]interface{}
 	log        io.Writer
 }
 
-func newLogger(logLevel string) *Logger {
+func NewLogger(logLevel string, log io.Writer) *Logger {
 	l := Logger{
 		logLevel: logLevel,
 		key:      "",
 		message:  "",
 		err:      "",
-		log:      os.Stderr,
+		vals:     make(map[string]interface{}),
+		log:      log,
 	}
 
 	return &l
@@ -58,6 +60,12 @@ func (l *Logger) Err(err error) *Logger {
 func (l *Logger) Msg(key string, msg string) *Logger {
 	l.key = key
 	l.message = msg
+
+	return l
+}
+
+func (l *Logger) Val(key string, val any) *Logger {
+	l.vals[key] = val
 
 	return l
 }
