@@ -14,11 +14,12 @@ const (
 	Hello                     = "hello"
 	Goodbye                   = "goodbye"
 	WhereAmI                  = "where am I?"
+	HelloWorld                = "hello world"
+	TestFilePath              = "/test/file/path"
 	TestRoute                 = "/test/route"
 	TestRoutePathParams       = "/test/route/{param}"
 	TestRoutePathParamHello   = "/test/route/hello"
 	TestRoutePathParamGoodbye = "/test/route/goodbye"
-	HelloWorld                = "hello world"
 )
 
 var (

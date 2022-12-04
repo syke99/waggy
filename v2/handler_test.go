@@ -111,6 +111,20 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	}
 }
 
+func TestWaggyHandler_ServeFile(t *testing.T) {
+	// Arrange
+	testPath := resources.TestFilePath
+	testFileServer := InitHandler().FileServer(testPath)
+
+	w := InitHandler()
+
+	// Act
+	fs := w.FileServer(testPath)
+
+	// Assert
+	assert.Equal(t, resources.GetFunctionName(fs), resources.GetFunctionName(testFileServer))
+}
+
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)

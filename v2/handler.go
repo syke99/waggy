@@ -105,7 +105,7 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 
 type FileServer func(w http.ResponseWriter, r *http.Request)
 
-func (wh *WaggyHandler) ServeFile(filePath string) FileServer {
+func (wh *WaggyHandler) FileServer(filePath string) FileServer {
 	return func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open(filePath)
 		if err != nil {
