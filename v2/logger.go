@@ -6,6 +6,14 @@ import (
 	"os"
 )
 
+type ParentLoggerOverrider = func() bool
+
+func OverrideParentLogger() ParentLoggerOverrider {
+	return func() bool {
+		return true
+	}
+}
+
 type Logger struct {
 	logLevel   string
 	key        string
@@ -15,7 +23,7 @@ type Logger struct {
 	log        io.Writer
 }
 
-func NewLogger(logLevel string) *Logger {
+func newLogger(logLevel string) *Logger {
 	l := Logger{
 		logLevel: logLevel,
 		key:      "",
