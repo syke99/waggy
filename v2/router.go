@@ -50,7 +50,7 @@ func (wr *WaggyRouter) WithLogger(logger *Logger) *WaggyRouter {
 // WithDefaultLogger sets wr's logger to the default Logger
 func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
 	l := Logger{
-		logLevel: "INFO",
+		logLevel: Info.level(),
 		key:      "",
 		message:  "",
 		err:      "",
