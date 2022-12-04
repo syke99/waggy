@@ -118,15 +118,19 @@ func (l *Logger) Val(key string, val any) *Logger {
 
 // Log builds out the line to be logged and then writes it to the *Logger's
 // log file
-func (l *Logger) Log() {
+func (l *Logger) Log() (int, error) {
 	lm := make(map[string]interface{})
 
 	lm["Level"] = l.logLevel
 
-	lm[l.key] = l.message
+	if l.key != "" {
+		lm[l.key] = l.message
+	}
 
 	for k, v := range l.vals {
-		lm[k] = v
+		if k != "" {
+			lm[k] = v
+		}
 	}
 
 	if l.err != "" {
@@ -135,5 +139,5 @@ func (l *Logger) Log() {
 
 	logBytes, _ := json.Marshal(lm)
 
-	l.log.Write(logBytes)
+	return l.log.Write(logBytes)
 }

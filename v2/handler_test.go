@@ -253,15 +253,28 @@ func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, l.log)
 }
 
-func TestWaggyHandler_ServeFile(t *testing.T) {
+func TestWaggyHandler_FileServer(t *testing.T) {
 	// Arrange
 	testPath := resources.TestFilePath
-	testFileServer := InitHandler().FileServer(testPath)
+	testFileServer, _ := InitHandler().FileServer(testPath)
 
 	w := InitHandler()
 
 	// Act
-	fs := w.FileServer(testPath)
+	fs, _ := w.FileServer(testPath)
+
+	// Assert
+	assert.Equal(t, resources.GetFunctionName(fs), resources.GetFunctionName(testFileServer))
+}
+
+func TestWaggyHandler_FileServer_NoPath(t *testing.T) {
+	// Arrange
+	testFileServer, _ := InitHandler().FileServer("")
+
+	w := InitHandler()
+
+	// Act
+	fs, _ := w.FileServer("")
 
 	// Assert
 	assert.Equal(t, resources.GetFunctionName(fs), resources.GetFunctionName(testFileServer))

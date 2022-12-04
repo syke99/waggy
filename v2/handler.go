@@ -3,6 +3,7 @@ package v2
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -129,7 +130,11 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 
 type FileServer func(w http.ResponseWriter, r *http.Request)
 
-func (wh *WaggyHandler) FileServer(filePath string) FileServer {
+func (wh *WaggyHandler) FileServer(filePath string) (FileServer, error) {
+	if filePath == "" {
+		return nil, errors.New("no path to file provided")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		file, err := os.Open(filePath)
 		if err != nil {
@@ -171,7 +176,7 @@ func (wh *WaggyHandler) FileServer(filePath string) FileServer {
 			w.Header().Set("content-type", "text/plain")
 			w.Write([]byte("Error returning file"))
 		}
-	}
+	}, nil
 }
 
 // ServeHTTP serves the route
