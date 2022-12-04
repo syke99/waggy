@@ -111,6 +111,148 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	}
 }
 
+func TestWaggyHandler_WithLogger(t *testing.T) {
+	// Arrange
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitHandler()
+
+	// Act
+	w.WithLogger(testLogger, nil)
+
+	// Assert
+	assert.IsType(t, &Logger{}, w.logger)
+	assert.Equal(t, Info.level(), w.logger.logLevel)
+	assert.Equal(t, "", w.logger.key)
+	assert.Equal(t, "", w.logger.message)
+	assert.Equal(t, "", w.logger.err)
+	assert.Equal(t, 0, len(w.logger.vals))
+	assert.Equal(t, resources.TestLogFile, w.logger.log)
+}
+
+func TestWaggyHandler_WithLogger_ParentOverride(t *testing.T) {
+	// Assert
+	r := InitRouter().
+		WithDefaultLogger()
+
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitHandler()
+
+	// Act
+	w.WithLogger(testLogger, OverrideParentLogger())
+
+	r.Handle(resources.TestRoute, w)
+
+	// Assert
+	assert.IsType(t, &Logger{}, w.logger)
+	assert.Equal(t, Info.level(), w.logger.logLevel)
+	assert.Equal(t, "", w.logger.key)
+	assert.Equal(t, "", w.logger.message)
+	assert.Equal(t, "", w.logger.err)
+	assert.Equal(t, 0, len(w.logger.vals))
+	assert.Equal(t, resources.TestLogFile, w.logger.log)
+}
+
+func TestWaggyHandler_WithDefaultLogger(t *testing.T) {
+	// Arrange
+	w := InitHandler()
+
+	// Act
+	w.WithDefaultLogger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, w.logger)
+	assert.Equal(t, Info.level(), w.logger.logLevel)
+	assert.Equal(t, "", w.logger.key)
+	assert.Equal(t, "", w.logger.message)
+	assert.Equal(t, "", w.logger.err)
+	assert.Equal(t, 0, len(w.logger.vals))
+	assert.Equal(t, os.Stderr, w.logger.log)
+}
+
+func TestWaggyHandler_Logger(t *testing.T) {
+	// Arrange
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitHandler().
+		WithLogger(testLogger, nil)
+
+	// Act
+	l := w.Logger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, l)
+	assert.Equal(t, Info.level(), l.logLevel)
+	assert.Equal(t, "", l.key)
+	assert.Equal(t, "", l.message)
+	assert.Equal(t, "", l.err)
+	assert.Equal(t, 0, len(l.vals))
+	assert.Equal(t, resources.TestLogFile, l.log)
+}
+
+func TestWaggyHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
+	// Assert
+	r := InitRouter().
+		WithDefaultLogger()
+
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitHandler()
+
+	w.WithLogger(testLogger, nil)
+
+	r.Handle(resources.TestRoute, w)
+
+	// Act
+	l := w.Logger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, l)
+	assert.Equal(t, Info.level(), l.logLevel)
+	assert.Equal(t, "", l.key)
+	assert.Equal(t, "", l.message)
+	assert.Equal(t, "", l.err)
+	assert.Equal(t, 0, len(l.vals))
+	assert.Equal(t, os.Stderr, l.log)
+}
+
+func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
+	// Assert
+	r := InitRouter().
+		WithDefaultLogger()
+
+	testLog := resources.TestLogFile
+	testLogLevel := Info
+	testLogger := NewLogger(testLogLevel, testLog)
+
+	w := InitHandler()
+
+	w.WithLogger(testLogger, OverrideParentLogger())
+
+	r.Handle(resources.TestRoute, w)
+
+	// Act
+	l := w.Logger()
+
+	// Assert
+	assert.IsType(t, &Logger{}, l)
+	assert.Equal(t, Info.level(), l.logLevel)
+	assert.Equal(t, "", l.key)
+	assert.Equal(t, "", l.message)
+	assert.Equal(t, "", l.err)
+	assert.Equal(t, 0, len(l.vals))
+	assert.Equal(t, resources.TestLogFile, l.log)
+}
+
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)

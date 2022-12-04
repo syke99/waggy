@@ -3,7 +3,6 @@ package v2
 import (
 	"encoding/json"
 	"errors"
-	"io"
 	"os"
 )
 
@@ -24,7 +23,7 @@ type Logger struct {
 	message  string
 	err      string
 	vals     map[string]interface{}
-	log      io.Writer
+	log      *os.File
 }
 
 // LogLevel allows you to set the level
@@ -46,7 +45,7 @@ func (l LogLevel) level() string {
 	return []string{
 		"INFO",
 		"DEBUG",
-		"Warning",
+		"WARNING",
 		"FATAL",
 		"ERROR",
 		"WARN",
@@ -85,8 +84,10 @@ func (l *Logger) SetLogFile(log *os.File) error {
 }
 
 // Level update the level of a *Logger
-func (l *Logger) Level(level LogLevel) {
+func (l *Logger) Level(level LogLevel) *Logger {
 	l.logLevel = level.level()
+
+	return l
 }
 
 // Err provide an error to the *Logger to be logged
