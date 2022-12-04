@@ -14,11 +14,14 @@ import (
 // WaggyHandler is used to handling various http.HandlerFuncs
 // mapped by HTTP methods for an individual route
 type WaggyHandler struct {
-	route          string
-	defResp        []byte
-	defErrResp     WaggyError
-	defErrRespCode int
-	handlerMap     map[string]http.HandlerFunc
+	route                string
+	defResp              []byte
+	defErrResp           WaggyError
+	defErrRespCode       int
+	handlerMap           map[string]http.HandlerFunc
+	logger               *Logger
+	parentLogger         *Logger
+	parentLoggerOverride bool
 }
 
 // InitHandler initialized a new WaggyHandler and returns
@@ -30,6 +33,8 @@ func InitHandler() *WaggyHandler {
 		defErrResp:     WaggyError{},
 		defErrRespCode: 0,
 		handlerMap:     make(map[string]http.HandlerFunc),
+		logger:         nil,
+		parentLogger:   nil,
 	}
 
 	return &w
@@ -48,6 +53,52 @@ func InitHandlerWithRoute(route string) *WaggyHandler {
 	}
 
 	return &w
+}
+
+// Logger returns the WaggyHandler's Logger. If no parent logger is
+// inherited from a WaggyRouter, or you provided a OverrideParentLogger
+// whenever adding a Logger to the WaggyHandler, then the WaggyHandler's
+// Logger will be returned. If no logger has been set, then this method
+// will return nil
+func (wh *WaggyHandler) Logger() *Logger {
+	if wh.parentLogger == nil ||
+		(wh.logger != nil && wh.parentLoggerOverride) {
+		return wh.logger
+	}
+	return wh.parentLogger
+}
+
+// WithLogger allows you to set a logger for wh
+func (wh *WaggyHandler) WithLogger(logger *Logger, parentOverride ParentLoggerOverrider) *WaggyHandler {
+	wh.logger = logger
+	if parentOverride == nil {
+		wh.parentLoggerOverride = false
+		return wh
+	}
+
+	wh.parentLoggerOverride = parentOverride()
+
+	return wh
+}
+
+// WithDefaultLogger sets wh's logger to the default Logger
+func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
+	l := Logger{
+		logLevel: Info.level(),
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stderr,
+	}
+
+	wh.logger = &l
+
+	return wh
+}
+
+func (wh *WaggyHandler) inheritLogger(lp *Logger) {
+	wh.parentLogger = lp
 }
 
 // WithDefaultResponse allows you to set a default response for

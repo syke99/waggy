@@ -12,6 +12,7 @@ import (
 // Handle on the return router and provide a route for the *WaggyHandler
 // you provide
 type WaggyRouter struct {
+	logger *Logger
 	router map[string]*WaggyHandler
 }
 
@@ -28,10 +29,43 @@ func InitRouter() *WaggyRouter {
 // Handle allows you to map a *WaggyHandler for a specific route. Just
 // in the popular gorilla/mux router, you can specify path parameters
 // by wrapping them with {} and they can later be accessed by calling
-// waggy.Vars(r)
-func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) {
+// Vars(r)
+func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) *WaggyRouter {
 	handler.route = route
+	handler.inheritLogger(wr.logger)
 	wr.router[route] = handler
+
+	return wr
+}
+
+// WithLogger allows you to set a Logger for the entire router. Whenever
+// Handle is called, this logger will be passed to the *WaggyHandler
+// being handled for the given route.
+func (wr *WaggyRouter) WithLogger(logger *Logger) *WaggyRouter {
+	wr.logger = logger
+
+	return wr
+}
+
+// WithDefaultLogger sets wr's logger to the default Logger
+func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
+	l := Logger{
+		logLevel: Info.level(),
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stderr,
+	}
+
+	wr.logger = &l
+
+	return wr
+}
+
+// Logger returns the WaggyRouter's logger
+func (wr *WaggyRouter) Logger() *Logger {
+	return wr.logger
 }
 
 // ServeHTTP satisfies the http.Handler interface and calls the stored

@@ -2,6 +2,7 @@ package resources
 
 import (
 	"errors"
+	"os"
 	"reflect"
 	"runtime"
 )
@@ -22,5 +23,9 @@ const (
 )
 
 var (
-	TestError = errors.New("this is a test Waggy Error")
+	TestError   = errors.New("this is a test Waggy Error")
+	TestLogFile = &os.File{}
+	TestKey     = "testKey"
+	TestMessage = "testMessage"
+	TestValue   = "testValue"
 )
