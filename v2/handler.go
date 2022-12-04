@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -100,6 +101,53 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 	wh.handlerMap[method] = handler
 
 	return wh
+}
+
+type FileServer func(w http.ResponseWriter, r *http.Request)
+
+func (wh *WaggyHandler) ServeFile(filePath string) FileServer {
+	return func(w http.ResponseWriter, r *http.Request) {
+		file, err := os.Open(filePath)
+		if err != nil {
+			wh.Logger(nil).
+				Err(err).
+				Msg("Method:", "ServeFile").
+				Log()
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Header().Set("content-type", "text/plain")
+			w.Write([]byte("Error opening file"))
+		}
+
+		cTBuf := make([]byte, 0, 512)
+
+		_, err = file.Read(cTBuf)
+		if err != nil {
+			wh.Logger(nil).
+				Err(err).
+				Msg("Method:", "ServeFile").
+				Log()
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Header().Set("content-type", "text/plain")
+			w.Write([]byte("Error reading file"))
+		}
+
+		cTType := http.DetectContentType(cTBuf)
+
+		w.Header().Set("content-type", cTType)
+
+		if _, err = io.Copy(w, file); err != nil {
+			wh.Logger(nil).
+				Err(err).
+				Msg("Method:", "ServeFile").
+				Log()
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Header().Set("content-type", "text/plain")
+			w.Write([]byte("Error returning file"))
+		}
+	}
 }
 
 // ServeHTTP serves the route
