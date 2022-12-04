@@ -256,28 +256,31 @@ func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 func TestWaggyHandler_FileServer(t *testing.T) {
 	// Arrange
 	testPath := resources.TestFilePath
-	testFileServer, _ := InitHandler().FileServer(testPath)
+	wr := httptest.NewRecorder()
 
-	w := InitHandler()
+	w := InitHandler().
+		WithDefaultLogger()
 
 	// Act
-	fs, _ := w.FileServer(testPath)
+	w.ServeFile(wr, testPath)
 
 	// Assert
-	assert.Equal(t, resources.GetFunctionName(fs), resources.GetFunctionName(testFileServer))
+	assert.Equal(t, http.StatusOK, wr.Code)
 }
 
 func TestWaggyHandler_FileServer_NoPath(t *testing.T) {
 	// Arrange
-	testFileServer, _ := InitHandler().FileServer("")
+	wr := httptest.NewRecorder()
 
-	w := InitHandler()
+	w := InitHandler().
+		WithDefaultLogger()
 
 	// Act
-	fs, _ := w.FileServer("")
+	w.ServeFile(wr, "")
 
 	// Assert
-	assert.Equal(t, resources.GetFunctionName(fs), resources.GetFunctionName(testFileServer))
+	assert.Equal(t, http.StatusInternalServerError, wr.Code)
+	assert.Equal(t, "Error serving file", wr.Body.String())
 }
 
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {

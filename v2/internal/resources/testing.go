@@ -16,7 +16,7 @@ const (
 	Goodbye                   = "goodbye"
 	WhereAmI                  = "where am I?"
 	HelloWorld                = "hello world"
-	TestFilePath              = "/test/file/path"
+	TestFilePath              = "./internal/resources/testing.go"
 	TestRoute                 = "/test/route"
 	TestRoutePathParams       = "/test/route/{param}"
 	TestRoutePathParamHello   = "/test/route/hello"

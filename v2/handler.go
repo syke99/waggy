@@ -128,40 +128,65 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 	return wh
 }
 
-type FileServer func(w http.ResponseWriter, r *http.Request)
-
-func (wh *WaggyHandler) FileServer(filePath string) (FileServer, error) {
+func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
+	var err error
 	if filePath == "" {
-		return nil, errors.New("no path to file provided")
+		err = errors.New("no path to file provided")
 	}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		file, err := os.Open(filePath)
+	file, err := os.Open(filePath)
 
-		cTBuf := make([]byte, 0, 512)
+	cTBuf := make([]byte, 0, 512)
 
-		if err == nil {
-			_, err = file.Read(cTBuf)
-		}
+	if err == nil {
+		_, err = file.Read(cTBuf)
+	}
 
-		cTType := ""
-		if err == nil {
-			cTType = http.DetectContentType(cTBuf)
-			w.Header().Set("content-type", cTType)
-			_, err = io.Copy(w, file)
-		}
+	cTType := ""
+	if err == nil {
+		cTType = http.DetectContentType(cTBuf)
+		w.Header().Set("content-type", cTType)
+		_, err = io.Copy(w, file)
+	}
 
-		if err != nil {
-			wh.Logger().
-				Err(err).
-				Msg("Method:", "ServeFile").
-				Log()
+	if err != nil {
+		wh.Logger().
+			Err(err).
+			Msg("Method:", "ServeFile").
+			Log()
 
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Header().Set("content-type", "text/plain")
-			w.Write([]byte("Error serving file"))
-		}
-	}, nil
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("content-type", "text/plain")
+		w.Write([]byte("Error serving file"))
+	}
+	//
+	//return func(w http.ResponseWriter, r *http.Request) {
+	//	file, err := os.Open(filePath)
+	//
+	//	cTBuf := make([]byte, 0, 512)
+	//
+	//	if err == nil {
+	//		_, err = file.Read(cTBuf)
+	//	}
+	//
+	//	cTType := ""
+	//	if err == nil {
+	//		cTType = http.DetectContentType(cTBuf)
+	//		w.Header().Set("content-type", cTType)
+	//		_, err = io.Copy(w, file)
+	//	}
+	//
+	//	if err != nil {
+	//		wh.Logger().
+	//			Err(err).
+	//			Msg("Method:", "ServeFile").
+	//			Log()
+	//
+	//		w.WriteHeader(http.StatusInternalServerError)
+	//		w.Header().Set("content-type", "text/plain")
+	//		w.Write([]byte("Error serving file"))
+	//	}
+	//}, nil
 }
 
 // ServeHTTP serves the route
