@@ -1,13 +1,14 @@
-package v2
+package waggy
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+	
+	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestInitHandler(t *testing.T) {
@@ -251,6 +252,36 @@ func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	assert.Equal(t, "", l.err)
 	assert.Equal(t, 0, len(l.vals))
 	assert.Equal(t, resources.TestLogFile, l.log)
+}
+
+func TestWaggyHandler_FileServer(t *testing.T) {
+	// Arrange
+	testPath := resources.TestFilePath
+	wr := httptest.NewRecorder()
+
+	w := InitHandler().
+		WithDefaultLogger()
+
+	// Act
+	w.ServeFile(wr, testPath)
+
+	// Assert
+	assert.Equal(t, http.StatusOK, wr.Code)
+}
+
+func TestWaggyHandler_FileServer_NoPath(t *testing.T) {
+	// Arrange
+	wr := httptest.NewRecorder()
+
+	w := InitHandler().
+		WithDefaultLogger()
+
+	// Act
+	w.ServeFile(wr, "")
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, wr.Code)
+	assert.Equal(t, "Error serving file", wr.Body.String())
 }
 
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {

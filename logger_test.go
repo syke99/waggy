@@ -1,9 +1,11 @@
-package v2
+package waggy
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/syke99/waggy/v2/internal/resources"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestOverrideParentLogger(t *testing.T) {
@@ -164,4 +166,40 @@ func TestLogger_Val(t *testing.T) {
 		assert.Equal(t, k, resources.TestKey)
 		assert.Equal(t, v, resources.TestValue)
 	}
+}
+
+func TestLogger_Log(t *testing.T) {
+	// Arrange
+	l := Logger{
+		logLevel: Info.level(),
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stdout,
+	}
+
+	// Act
+	_, err := l.Log()
+
+	// Assert
+	assert.NoError(t, err)
+}
+
+func TestLogger_Log_Err(t *testing.T) {
+	// Arrange
+	l := Logger{
+		logLevel: Info.level(),
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      nil,
+	}
+
+	// Act
+	_, err := l.Log()
+
+	// Assert
+	assert.Error(t, err)
 }

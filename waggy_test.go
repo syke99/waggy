@@ -1,14 +1,15 @@
-package v2
+package waggy
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/syke99/waggy/v2/internal/resources"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestVars_Hello(t *testing.T) {
@@ -166,6 +167,24 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s\n", string(errBytes)), wr.Body.String())
 }
 
-func TestServe(t *testing.T) {
+func TestServe_Router(t *testing.T) {
+	// Arrange
+	w := InitRouter()
 
+	// Act
+	err := Serve(w)
+
+	// Assert
+	assert.Error(t, err)
+}
+
+func TestServe_Handler(t *testing.T) {
+	// Arrange
+	w := InitHandler()
+
+	// Act
+	err := Serve(w)
+
+	// Assert
+	assert.Error(t, err)
 }

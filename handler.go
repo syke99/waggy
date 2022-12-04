@@ -1,14 +1,16 @@
-package v2
+package waggy
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
 
-	"github.com/syke99/waggy/v2/internal/resources"
+	"github.com/syke99/waggy/internal/resources"
 )
 
 // WaggyHandler is used to handling various http.HandlerFuncs
@@ -124,6 +126,67 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 	wh.handlerMap[method] = handler
 
 	return wh
+}
+
+func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
+	var err error
+	if filePath == "" {
+		err = errors.New("no path to file provided")
+	}
+
+	file, err := os.Open(filePath)
+
+	cTBuf := make([]byte, 0, 512)
+
+	if err == nil {
+		_, err = file.Read(cTBuf)
+	}
+
+	cTType := ""
+	if err == nil {
+		cTType = http.DetectContentType(cTBuf)
+		w.Header().Set("content-type", cTType)
+		_, err = io.Copy(w, file)
+	}
+
+	if err != nil {
+		wh.Logger().
+			Err(err).
+			Msg("Method:", "ServeFile").
+			Log()
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("content-type", "text/plain")
+		w.Write([]byte("Error serving file"))
+	}
+	//
+	//return func(w http.ResponseWriter, r *http.Request) {
+	//	file, err := os.Open(filePath)
+	//
+	//	cTBuf := make([]byte, 0, 512)
+	//
+	//	if err == nil {
+	//		_, err = file.Read(cTBuf)
+	//	}
+	//
+	//	cTType := ""
+	//	if err == nil {
+	//		cTType = http.DetectContentType(cTBuf)
+	//		w.Header().Set("content-type", cTType)
+	//		_, err = io.Copy(w, file)
+	//	}
+	//
+	//	if err != nil {
+	//		wh.Logger().
+	//			Err(err).
+	//			Msg("Method:", "ServeFile").
+	//			Log()
+	//
+	//		w.WriteHeader(http.StatusInternalServerError)
+	//		w.Header().Set("content-type", "text/plain")
+	//		w.Write([]byte("Error serving file"))
+	//	}
+	//}, nil
 }
 
 // ServeHTTP serves the route

@@ -15,7 +15,7 @@ It accomplishes this by passing in the HTTP request information via os.Stdin and
 os.Stdout. To remove considerable amounts of boilerplate code and to provide a familiar API for handling these WAGI HTTP
 requests, Waggy was created. It provides path parameter access functionality that will feel very reminiscent to those who 
 have used [gorilla/mux](https://github.com/gorilla/mux). Additionally, you can also map multiple handlers to a specific route
-based on the specific HTTP method that was used in the incoming request. Waggy also allows users to compile an entire server's 
+based on the specific HTTP method that was used in the incoming request.  Waggy also allows users to compile an entire server's 
 worth of routes into a single WASM module and bypass setting up their routes via a modules.toml file if they so choose by 
 handling mapping the route to the correct entry point (handler). But don't worry, you can also compile individual routes into 
 their own WASM modules, too, so you can use the conventional modules.toml file for routing.
