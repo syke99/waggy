@@ -44,12 +44,6 @@ Then you can import the package in any go file you'd like
 import "github.com/syke99/waggy"
 ```
 
-**!!NOTE!!**
-
-v1 of Waggy has been deprecated. While v1 may continue working for you currently, no guarantees are made for 
-future continued success with v1 as it is no longer being maintained. It is advised to use v2 (especially if you
-are wanting to compile an entire server's worth of routes as this functionality is not supported in v1)
-
 ### Basic usage
 
 Examples of using both WaggyRouters and WaggyHandlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy-examples) repo.
