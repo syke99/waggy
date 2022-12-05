@@ -8,6 +8,8 @@ import (
 	"github.com/syke99/waggy/internal/resources"
 )
 
+type FullCGI string
+
 // WaggyEntryPoint is used as a type constraint whenever calling
 // Serve so that only a *WaggyRouter or *WaggyHandler can
 // be used and not a bare http.Handler

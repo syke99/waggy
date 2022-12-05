@@ -6,14 +6,14 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
-	
+
 	"github.com/stretchr/testify/assert"
 	"github.com/syke99/waggy/internal/resources"
 )
 
 func TestInitHandler(t *testing.T) {
 	// Act
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
@@ -30,7 +30,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
 	assert.IsType(t, WaggyError{}, w.defErrResp)
@@ -39,7 +39,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 
 func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 	// Arrange
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	w.WithDefaultResponse([]byte(resources.HelloWorld))
@@ -56,7 +56,7 @@ func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 
 func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
 	// Arrange
-	w := InitHandler()
+	w := InitHandler(nil)
 	testErr := WaggyError{
 		Type:   resources.TestRoute,
 		Title:  "",
@@ -88,7 +88,7 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	w.MethodHandler(http.MethodGet, helloHandler)
@@ -118,7 +118,7 @@ func TestWaggyHandler_WithLogger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	w.WithLogger(testLogger, nil)
@@ -135,14 +135,14 @@ func TestWaggyHandler_WithLogger(t *testing.T) {
 
 func TestWaggyHandler_WithLogger_ParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter().
+	r := InitRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	w.WithLogger(testLogger, OverrideParentLogger())
@@ -161,7 +161,7 @@ func TestWaggyHandler_WithLogger_ParentOverride(t *testing.T) {
 
 func TestWaggyHandler_WithDefaultLogger(t *testing.T) {
 	// Arrange
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	w.WithDefaultLogger()
@@ -182,7 +182,7 @@ func TestWaggyHandler_Logger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler().
+	w := InitHandler(nil).
 		WithLogger(testLogger, nil)
 
 	// Act
@@ -200,14 +200,14 @@ func TestWaggyHandler_Logger(t *testing.T) {
 
 func TestWaggyHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter().
+	r := InitRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	w.WithLogger(testLogger, nil)
 
@@ -228,14 +228,14 @@ func TestWaggyHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 
 func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter().
+	r := InitRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	w.WithLogger(testLogger, OverrideParentLogger())
 
@@ -259,7 +259,7 @@ func TestWaggyHandler_FileServer(t *testing.T) {
 	testPath := resources.TestFilePath
 	wr := httptest.NewRecorder()
 
-	w := InitHandler().
+	w := InitHandler(nil).
 		WithDefaultLogger()
 
 	// Act
@@ -273,7 +273,7 @@ func TestWaggyHandler_FileServer_NoPath(t *testing.T) {
 	// Arrange
 	wr := httptest.NewRecorder()
 
-	w := InitHandler().
+	w := InitHandler(nil).
 		WithDefaultLogger()
 
 	// Act
@@ -321,7 +321,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
 	assert.Equal(t, resources.HelloWorld, string(w.defResp))
@@ -380,7 +380,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
 	assert.Equal(t, resources.HelloWorld, string(w.defResp))

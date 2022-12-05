@@ -13,7 +13,7 @@ import (
 
 func TestInitRouter(t *testing.T) {
 	// Act
-	w := InitRouter()
+	w := InitRouter(nil)
 
 	// Assert
 	assert.IsType(t, &WaggyRouter{}, w)
@@ -23,10 +23,10 @@ func TestInitRouter(t *testing.T) {
 
 func TestWaggyRouter_Handle(t *testing.T) {
 	// Arrange
-	w := InitRouter()
+	w := InitRouter(nil)
 
-	helloHandler := InitHandler()
-	goodbyeHandler := InitHandler()
+	helloHandler := InitHandler(nil)
+	goodbyeHandler := InitHandler(nil)
 
 	// Act
 	w.Handle("/hello", helloHandler)
@@ -39,7 +39,7 @@ func TestWaggyRouter_Handle(t *testing.T) {
 
 func TestWaggyRouter_WithLogger(t *testing.T) {
 	// Arrange
-	w := InitRouter()
+	w := InitRouter(nil)
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
@@ -60,7 +60,7 @@ func TestWaggyRouter_WithLogger(t *testing.T) {
 
 func TestWaggyRouter_WithDefaultLogger(t *testing.T) {
 	// Arrange
-	w := InitRouter()
+	w := InitRouter(nil)
 
 	// Act
 	w.WithDefaultLogger()
@@ -81,7 +81,7 @@ func TestWaggyRouter_Logger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitRouter().
+	w := InitRouter(nil).
 		WithLogger(testLogger)
 
 	// Act
@@ -99,7 +99,7 @@ func TestWaggyRouter_Logger(t *testing.T) {
 
 func TestWaggyRouter_Logger_Default(t *testing.T) {
 	// Arrange
-	w := InitRouter().
+	w := InitRouter(nil).
 		WithDefaultLogger()
 
 	// Act
@@ -117,16 +117,15 @@ func TestWaggyRouter_Logger_Default(t *testing.T) {
 
 func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
-	wr := InitRouter()
+	wr := InitRouter(nil)
 
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
 
-	wh := InitHandler().
+	wh := InitHandler(nil).
 		MethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRoute, wh)
@@ -146,16 +145,15 @@ func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 
 func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
-	wr := InitRouter()
+	wr := InitRouter(nil)
 
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
 	os.Setenv(resources.RequestMethod.String(), http.MethodDelete)
 
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wh := InitHandler().
+	wh := InitHandler(nil).
 		MethodHandler(http.MethodDelete, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh)

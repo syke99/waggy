@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/syke99/waggy/internal/resources"
@@ -24,11 +25,22 @@ type WaggyHandler struct {
 	logger               *Logger
 	parentLogger         *Logger
 	parentLoggerOverride bool
+	fullCGI              bool
 }
 
 // InitHandler initialized a new WaggyHandler and returns
 // a pointer to it
-func InitHandler() *WaggyHandler {
+func InitHandler(cgi *FullCGI) *WaggyHandler {
+	var o bool
+	var err error
+
+	if cgi != nil {
+		o, err = strconv.ParseBool(string(*cgi))
+		if err != nil {
+			o = false
+		}
+	}
+
 	w := WaggyHandler{
 		route:          "",
 		defResp:        make([]byte, 0),
@@ -37,6 +49,7 @@ func InitHandler() *WaggyHandler {
 		handlerMap:     make(map[string]http.HandlerFunc),
 		logger:         nil,
 		parentLogger:   nil,
+		fullCGI:        o,
 	}
 
 	return &w
@@ -46,6 +59,10 @@ func InitHandler() *WaggyHandler {
 // route and returns a pointer to it. It is intended to be used whenever
 // only compiling an individual *WaggyHandler instead of a full *WaggyRouter
 func InitHandlerWithRoute(route string) *WaggyHandler {
+	if route[:1] == "/" {
+		route = route[1:]
+	}
+
 	w := WaggyHandler{
 		route:          route,
 		defResp:        make([]byte, 0),
@@ -101,6 +118,10 @@ func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
 
 func (wh *WaggyHandler) inheritLogger(lp *Logger) {
 	wh.parentLogger = lp
+}
+
+func (wh *WaggyHandler) inheritFullCgiFlag(cgi bool) {
+	wh.fullCGI = cgi
 }
 
 // WithDefaultResponse allows you to set a default response for
@@ -163,13 +184,25 @@ func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
 
 // ServeHTTP serves the route
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	splitRoute := strings.Split(wh.route[1:], "/")
+	if wh.route[:1] == "/" {
+		wh.route = wh.route[1:]
+	}
 
-	matchedRoute := os.Getenv(resources.XMatchedRoute.String())[1:]
-
-	splitRequestRoute := strings.Split(matchedRoute, "/")
+	splitRoute := strings.Split(wh.route, "/")
 
 	vars := make(map[string]string)
+
+	route := ""
+
+	if mr := r.Context().Value(resources.MatchedRoute); mr != nil {
+		route = r.Context().Value(resources.MatchedRoute).(string)
+	} else {
+		r.URL.Opaque = ""
+
+		route = r.URL.Path
+	}
+
+	splitRequestRoute := strings.Split(route[1:], "/")
 
 	for i, section := range splitRoute {
 		beginning := section[:1]
@@ -185,19 +218,25 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	queryParams := make(map[string][]string)
 
-	qp := os.Args[1:]
+	qp := strings.Split(os.Getenv(resources.QueryString.String()), "&")
 
-	for _, _qp := range qp {
-		sqp := strings.Split(_qp, "=")
+	if !wh.fullCGI {
+		qp = os.Args[1:]
+	}
 
-		key := ""
-		value := ""
+	if qp[0] != "" {
+		for _, _qp := range qp {
+			sqp := strings.Split(_qp, "=")
 
-		if len(sqp) == 2 {
-			key = sqp[0]
-			value = sqp[1]
+			key := ""
+			value := ""
 
-			queryParams[key] = append(queryParams[key], value)
+			if len(sqp) == 2 {
+				key = sqp[0]
+				value = sqp[1]
+
+				queryParams[key] = append(queryParams[key], value)
+			}
 		}
 	}
 

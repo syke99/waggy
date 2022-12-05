@@ -5,6 +5,7 @@ type ContextKey int
 const (
 	DefResp ContextKey = iota
 	DefErr
+	MatchedRoute
 	PathParams
 	QueryParams
 )
