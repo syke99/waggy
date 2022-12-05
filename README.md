@@ -18,15 +18,17 @@ have used [gorilla/mux](https://github.com/gorilla/mux). Additionally, you can a
 based on the specific HTTP method that was used in the incoming request. Waggy also allows users to compile an entire server's 
 worth of routes into a single WASM module and bypass setting up their routes via a modules.toml file if they so choose by 
 handling mapping the route to the correct entry point (handler). But don't worry, you can also compile individual routes into 
-their own WASM modules, too, so you can use the conventional modules.toml file for routing.
+their own WASM modules, too, so you can use the conventional modules.toml file for routing. 
 
 </br>
 
-#### v0.3.0 improvements:
-* **Logger**: Both WaggyHandlers and WaggyRouters can be instantiated with Loggers. You can choose between the default Logger, or create your own.
-Whenever using a WaggyRouter, WaggyHandlers will inherit the WaggyRouter's Logger, unless you use the provided `OverrideParentLogger()` function.
-* **File Server**: Since WAGI supports simply returning a file, Waggy provides a convenience method on WaggyHandlers for serving files to eliminate
-rewriting boilerplate code
+#### v0.4.0 improvements:
+* **CGI vs WAGI**: The biggest improvement with the v0.4 release of Waggy is the ability to use Waggy to
+to be compiled to WASM files that can run in both WAGI and regular CGI environments. All you need to do is
+declare a variable like so `var CGIFlag FullCgi` in `main.go` and pass it into the functions to initialize
+both WaggyRouters and WaggyHandlers. Then whenever compiling your WASM file with TinyGo, simply provide an
+ldflags build flag like so `-ldflags "-X <path_to_main>.CGIFlag=<VALUE>"` where VALUE is set to 0 for WAGI
+and 1 for regular CGI
 
 How do I use Waggy?
 ====
@@ -47,6 +49,8 @@ import "github.com/syke99/waggy"
 ### Basic usage
 
 Examples of using both WaggyRouters and WaggyHandlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy-examples) repo.
+
+
 
 **!!NOTE!!**
 
