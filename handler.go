@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/syke99/waggy/internal/resources"
@@ -24,11 +25,22 @@ type WaggyHandler struct {
 	logger               *Logger
 	parentLogger         *Logger
 	parentLoggerOverride bool
+	fullCGI              bool
 }
 
 // InitHandler initialized a new WaggyHandler and returns
 // a pointer to it
-func InitHandler() *WaggyHandler {
+func InitHandler(cgi *FullCGI) *WaggyHandler {
+	var o bool
+	var err error
+
+	if cgi != nil {
+		o, err = strconv.ParseBool(*cgi)
+		if err != nil {
+			o = false
+		}
+	}
+
 	w := WaggyHandler{
 		route:          "",
 		defResp:        make([]byte, 0),
@@ -37,6 +49,7 @@ func InitHandler() *WaggyHandler {
 		handlerMap:     make(map[string]http.HandlerFunc),
 		logger:         nil,
 		parentLogger:   nil,
+		fullCGI:        o,
 	}
 
 	return &w

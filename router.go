@@ -3,6 +3,7 @@ package waggy
 import (
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/syke99/waggy/internal/resources"
 )
@@ -12,15 +13,27 @@ import (
 // Handle on the return router and provide a route for the *WaggyHandler
 // you provide
 type WaggyRouter struct {
-	logger *Logger
-	router map[string]*WaggyHandler
+	logger  *Logger
+	router  map[string]*WaggyHandler
+	fullCGI bool
 }
 
 // InitRouter initializes a new WaggyRouter and returns a pointer
 // to it
-func InitRouter() *WaggyRouter {
+func InitRouter(cgi *FullCGI) *WaggyRouter {
+	var o bool
+	var err error
+
+	if cgi != nil {
+		o, err = strconv.ParseBool(*cgi)
+		if err != nil {
+			o = false
+		}
+	}
+
 	r := WaggyRouter{
-		router: make(map[string]*WaggyHandler),
+		router:  make(map[string]*WaggyHandler),
+		fullCGI: o,
 	}
 
 	return &r

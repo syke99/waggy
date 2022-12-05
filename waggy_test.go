@@ -169,7 +169,7 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 
 func TestServe_Router(t *testing.T) {
 	// Arrange
-	w := InitRouter()
+	w := InitRouter(nil)
 
 	// Act
 	err := Serve(w)
@@ -180,7 +180,7 @@ func TestServe_Router(t *testing.T) {
 
 func TestServe_Handler(t *testing.T) {
 	// Arrange
-	w := InitHandler()
+	w := InitHandler(nil)
 
 	// Act
 	err := Serve(w)
