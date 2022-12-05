@@ -6,6 +6,7 @@ const (
 	DefResp ContextKey = iota
 	DefErr
 	PathParams
+	QueryParams
 )
 
 type Env int
