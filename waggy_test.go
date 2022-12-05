@@ -14,7 +14,6 @@ import (
 
 func TestVars_Hello(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +45,6 @@ func TestVars_Hello(t *testing.T) {
 
 func TestVars_Goodbye(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamGoodbye)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +77,6 @@ func TestVars_Goodbye(t *testing.T) {
 
 func TestVars_NoPathParams(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -112,7 +109,6 @@ func TestVars_NoPathParams(t *testing.T) {
 
 func TestWriteDefaultResponse(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	defRespHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +132,6 @@ func TestWriteDefaultResponse(t *testing.T) {
 
 func TestWriteDefaultErrorResponse(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoutePathParamHello)
 	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	testErr := WaggyError{

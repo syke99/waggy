@@ -1,9 +1,11 @@
 package waggy
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/syke99/waggy/internal/resources"
 )
@@ -46,6 +48,7 @@ func InitRouter(cgi *FullCGI) *WaggyRouter {
 func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) *WaggyRouter {
 	handler.route = route
 	handler.inheritLogger(wr.logger)
+	handler.inheritFullCgiFlag(wr.fullCGI)
 	wr.router[route] = handler
 
 	return wr
@@ -84,5 +87,52 @@ func (wr *WaggyRouter) Logger() *Logger {
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
 func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	wr.router[os.Getenv(resources.XMatchedRoute.String())].ServeHTTP(w, r)
+	rt := ""
+
+	for key, handler := range wr.router {
+		r.URL.Opaque = ""
+		rRoute := r.URL.Path
+
+		if rRoute[:1] == "/" {
+			rRoute = rRoute[1:]
+		}
+
+		splitRoute := strings.Split(rRoute, "/")
+
+		splitKey := strings.Split(key[1:], "/")
+
+		for i, section := range splitKey {
+			beginning := section[:1]
+			end := section[len(section)-1:]
+
+			// check if this section is a query param
+			if beginning == "{" &&
+				end == "}" {
+				continue
+			}
+
+			// if the route sections don't match and aren't query
+			// params, break out as these are not the correctly matched
+			// routes
+			if splitRoute[i] != section {
+				break
+			}
+
+			// if the end of splitRoute is reached, and we haven't
+			// broken out of the loop to move on to the next route,
+			// then the routes match
+			if i == len(splitKey)-1 {
+				rt = key
+			}
+		}
+
+		if rt != "" {
+			ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
+
+			r = r.Clone(ctx)
+
+			handler.ServeHTTP(w, r)
+			rt = ""
+		}
+	}
 }

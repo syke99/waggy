@@ -30,7 +30,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
 	assert.IsType(t, WaggyError{}, w.defErrResp)
@@ -321,7 +321,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
 	assert.Equal(t, resources.HelloWorld, string(w.defResp))
@@ -380,7 +380,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
-	assert.Equal(t, resources.TestRoute, w.route)
+	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
 	assert.Equal(t, resources.HelloWorld, string(w.defResp))
