@@ -13,8 +13,13 @@ type QueryParams struct {
 // Query returns QueryParams from the provided *http.Request
 func Query(r *http.Request) *QueryParams {
 	if rv := r.Context().Value(resources.QueryParams); rv != nil {
-		qp := rv.(QueryParams)
-		return &qp
+		qp := rv.(map[string][]string)
+
+		q := QueryParams{
+			qp: qp,
+		}
+
+		return &q
 	}
 	return nil
 }

@@ -225,7 +225,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(queryParams) != 0 {
-		ctx = context.WithValue(ctx, resources.QueryString, queryParams)
+		ctx = context.WithValue(ctx, resources.QueryParams, queryParams)
 	}
 
 	r = r.Clone(ctx)
