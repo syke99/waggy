@@ -190,10 +190,15 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, _qp := range qp {
 		sqp := strings.Split(_qp, "=")
 
-		key := sqp[0]
-		value := sqp[1]
+		key := ""
+		value := ""
 
-		queryParams[key] = append(queryParams[key], value)
+		if len(sqp) == 2 {
+			key = sqp[0]
+			value = sqp[1]
+
+			queryParams[key] = append(queryParams[key], value)
+		}
 	}
 
 	if len(wh.defResp) != 0 {
