@@ -35,7 +35,7 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 	var err error
 
 	if cgi != nil {
-		o, err = strconv.ParseBool(*cgi)
+		o, err = strconv.ParseBool(string(*cgi))
 		if err != nil {
 			o = false
 		}
