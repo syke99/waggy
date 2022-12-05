@@ -159,34 +159,6 @@ func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
 		w.Header().Set("content-type", "text/plain")
 		w.Write([]byte("Error serving file"))
 	}
-	//
-	//return func(w http.ResponseWriter, r *http.Request) {
-	//	file, err := os.Open(filePath)
-	//
-	//	cTBuf := make([]byte, 0, 512)
-	//
-	//	if err == nil {
-	//		_, err = file.Read(cTBuf)
-	//	}
-	//
-	//	cTType := ""
-	//	if err == nil {
-	//		cTType = http.DetectContentType(cTBuf)
-	//		w.Header().Set("content-type", cTType)
-	//		_, err = io.Copy(w, file)
-	//	}
-	//
-	//	if err != nil {
-	//		wh.Logger().
-	//			Err(err).
-	//			Msg("Method:", "ServeFile").
-	//			Log()
-	//
-	//		w.WriteHeader(http.StatusInternalServerError)
-	//		w.Header().Set("content-type", "text/plain")
-	//		w.Write([]byte("Error serving file"))
-	//	}
-	//}, nil
 }
 
 // ServeHTTP serves the route
@@ -211,6 +183,24 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	queryParams := make(map[string][]string)
+
+	qp := os.Args[1:]
+
+	for _, _qp := range qp {
+		sqp := strings.Split(_qp, "=")
+
+		key := ""
+		value := ""
+
+		if len(sqp) == 2 {
+			key = sqp[0]
+			value = sqp[1]
+
+			queryParams[key] = append(queryParams[key], value)
+		}
+	}
+
 	if len(wh.defResp) != 0 {
 		ctx = context.WithValue(ctx, resources.DefResp, func(w http.ResponseWriter) (int, error) {
 			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
@@ -232,6 +222,10 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if len(vars) != 0 {
 		ctx = context.WithValue(ctx, resources.PathParams, vars)
+	}
+
+	if len(queryParams) != 0 {
+		ctx = context.WithValue(ctx, resources.QueryParams, queryParams)
 	}
 
 	r = r.Clone(ctx)
