@@ -119,8 +119,6 @@ func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	wr := InitRouter(nil)
 
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
-
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
@@ -146,8 +144,6 @@ func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
 	wr := InitRouter(nil)
-
-	os.Setenv(resources.RequestMethod.String(), http.MethodDelete)
 
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
