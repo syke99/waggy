@@ -6,6 +6,7 @@ const (
 	DefResp ContextKey = iota
 	DefErr
 	MatchedRoute
+	RootRoute
 	PathParams
 	QueryParams
 )

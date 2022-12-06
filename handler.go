@@ -249,6 +249,23 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		wh.route = wh.route[1:]
 	}
 
+	var rootRoute bool
+	if rr := r.Context().Value(resources.RootRoute); rr != nil {
+		if rootRoute && wh.route != "/" {
+			noRoot := WaggyError{
+				Title:    "Resource not found",
+				Detail:   "route not found",
+				Status:   404,
+				Instance: "/",
+			}
+
+			wh.defErrResp = noRoot
+
+			w.Header().Set("Content-Type", "application/problem+json")
+			fmt.Fprintln(w, wh.buildErrorJSON())
+		}
+	}
+
 	splitRoute := strings.Split(wh.route, "/")
 
 	vars := make(map[string]string)

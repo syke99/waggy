@@ -132,7 +132,16 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if rt != "" || rRoute == "/" {
+		if rRoute == "/" {
+			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
+
+			r = r.Clone(ctx)
+
+			handler.ServeHTTP(w, r)
+			break
+		}
+
+		if rt != "" {
 			ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
 
 			r = r.Clone(ctx)
