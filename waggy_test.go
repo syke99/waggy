@@ -1,7 +1,6 @@
 package waggy
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +26,7 @@ func TestVars_Hello(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams)
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -57,7 +56,7 @@ func TestVars_Goodbye(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams)
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -88,7 +87,7 @@ func TestVars_NoPathParams(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute)
+	handler := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -110,7 +109,7 @@ func TestWriteDefaultResponse(t *testing.T) {
 		WriteDefaultResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute).
+	handler := InitHandlerWithRoute(resources.TestRoute, nil).
 		MethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultResponse([]byte(resources.Hello))
 
@@ -139,7 +138,7 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 		WriteDefaultErrorResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute).
+	handler := InitHandlerWithRoute(resources.TestRoute, nil).
 		MethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
 
@@ -147,13 +146,13 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 
-	errBytes, _ := json.Marshal(testErr)
+	handler.buildErrorJSON()
 
 	// Act
 	handler.ServeHTTP(wr, r)
 
 	// Assert
-	assert.Equal(t, fmt.Sprintf("%s\n", string(errBytes)), wr.Body.String())
+	assert.Equal(t, fmt.Sprintf("%s\n", handler.buildErrorJSON()), wr.Body.String())
 }
 
 func TestServe_Router(t *testing.T) {
