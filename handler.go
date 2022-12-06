@@ -263,7 +263,11 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		route = r.URL.Path
 	}
 
-	splitRequestRoute := strings.Split(route[1:], "/")
+	splitRequestRoute := []string{"/"}
+
+	if route != "/" {
+		splitRequestRoute = strings.Split(route[1:], "/")
+	}
 
 	for i, section := range splitRoute {
 		beginning := section[:1]
