@@ -121,7 +121,7 @@ func (l *Logger) Val(key string, val any) *Logger {
 func (l *Logger) Log() (int, error) {
 	lm := make(map[string]string)
 
-	lm["Level"] = l.logLevel
+	lm["level"] = l.logLevel
 
 	if l.key != "" {
 		lm[l.key] = l.message
@@ -134,7 +134,7 @@ func (l *Logger) Log() (int, error) {
 	}
 
 	if l.err != "" {
-		lm["Error"] = l.err
+		lm["error"] = l.err
 	}
 
 	return l.log.Write([]byte(buildLogJSON(lm)))
