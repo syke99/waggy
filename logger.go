@@ -1,8 +1,8 @@
 package waggy
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 )
 
@@ -119,7 +119,7 @@ func (l *Logger) Val(key string, val any) *Logger {
 // Log builds out the line to be logged and then writes it to the *Logger's
 // log file
 func (l *Logger) Log() (int, error) {
-	lm := make(map[string]interface{})
+	lm := make(map[string]string)
 
 	lm["Level"] = l.logLevel
 
@@ -129,7 +129,7 @@ func (l *Logger) Log() (int, error) {
 
 	for k, v := range l.vals {
 		if k != "" {
-			lm[k] = v
+			lm[k] = fmt.Sprintf("%s,%v", lm[k], v)
 		}
 	}
 
@@ -137,7 +137,21 @@ func (l *Logger) Log() (int, error) {
 		lm["Error"] = l.err
 	}
 
-	logBytes, _ := json.Marshal(lm)
+	return l.log.Write([]byte(buildLogJSON(lm)))
+}
 
-	return l.log.Write(logBytes)
+func buildLogJSON(log map[string]string) string {
+	logJSON := "{"
+
+	for key, value := range log {
+		if key != "" {
+			if logJSON[:1] != "{" {
+				logJSON = fmt.Sprintf("%s,", logJSON)
+			}
+
+			logJSON = fmt.Sprintf("%[1]s %[2]s:%[3]s", logJSON, key, value)
+		}
+	}
+
+	return fmt.Sprintf("%s }", logJSON)
 }

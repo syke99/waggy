@@ -2,7 +2,6 @@ package waggy
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -164,10 +163,8 @@ func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
 		_, err = file.Read(cTBuf)
 	}
 
-	cTType := ""
 	if err == nil {
-		cTType = http.DetectContentType(cTBuf)
-		w.Header().Set("content-type", cTType)
+		w.Header().Set("content-type", "application/octet-stream")
 		_, err = io.Copy(w, file)
 	}
 
@@ -181,6 +178,57 @@ func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
 		w.Header().Set("content-type", "text/plain")
 		w.Write([]byte("Error serving file"))
 	}
+}
+
+func (wh *WaggyHandler) buildErrorJSON() string {
+
+	errStr := "{"
+
+	if wh.defErrResp.Type != "" {
+		errStr = fmt.Sprintf("%[1]s type:%[2]s", errStr, wh.defErrResp.Type)
+	}
+
+	if wh.defErrResp.Title != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s title:%[2]s", errStr, wh.defErrResp.Title)
+	}
+
+	if wh.defErrResp.Detail != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s detail:%[2]s", errStr, wh.defErrResp.Detail)
+	}
+
+	if wh.defErrResp.Status != 0 {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s status:%[2]d", errStr, wh.defErrResp.Status)
+	}
+
+	if wh.defErrResp.Instance != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s instance:%[2]s", errStr, wh.defErrResp.Instance)
+	}
+
+	if wh.defErrResp.Field != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s field:%[2]s", errStr, wh.defErrResp.Field)
+	}
+
+	return fmt.Sprintf("%[1]s }", errStr)
 }
 
 // ServeHTTP serves the route
@@ -245,20 +293,17 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if len(wh.defResp) != 0 {
 		ctx = context.WithValue(ctx, resources.DefResp, func(w http.ResponseWriter) {
-			w.Header().Set("Content-Type", http.DetectContentType(wh.defResp))
+			w.Header().Set("Content-Type", "application/octet-stream")
 
 			fmt.Fprintln(w, string(wh.defResp))
 		})
 	}
 
 	if wh.defErrResp.Detail != "" {
-
-		errBytes, _ := json.Marshal(wh.defErrResp)
-
 		w.Header().Set("Content-Type", "application/problem+json")
 
 		ctx = context.WithValue(ctx, resources.DefErr, func(w http.ResponseWriter) {
-			fmt.Fprintln(w, string(errBytes))
+			fmt.Fprintln(w, wh.buildErrorJSON())
 		})
 	}
 
