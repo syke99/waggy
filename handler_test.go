@@ -286,8 +286,6 @@ func TestWaggyHandler_FileServer_NoPath(t *testing.T) {
 
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -345,8 +343,6 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 
 func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.XMatchedRoute.String(), resources.TestRoute)
-	os.Setenv(resources.RequestMethod.String(), http.MethodDelete)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -371,7 +367,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 
 	w.WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
 
-	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
+	r, _ := http.NewRequest(http.MethodDelete, resources.TestRoute, nil)
 
 	wr := httptest.NewRecorder()
 

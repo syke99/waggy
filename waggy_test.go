@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,6 @@ import (
 
 func TestVars_Hello(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
 		params := Vars(r)
@@ -45,7 +43,6 @@ func TestVars_Hello(t *testing.T) {
 
 func TestVars_Goodbye(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
 		params := Vars(r)
@@ -77,7 +74,6 @@ func TestVars_Goodbye(t *testing.T) {
 
 func TestVars_NoPathParams(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
 		params := Vars(r)
@@ -109,7 +105,6 @@ func TestVars_NoPathParams(t *testing.T) {
 
 func TestWriteDefaultResponse(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	defRespHandler := func(w http.ResponseWriter, r *http.Request) {
 		WriteDefaultResponse(w, r)
@@ -132,7 +127,6 @@ func TestWriteDefaultResponse(t *testing.T) {
 
 func TestWriteDefaultErrorResponse(t *testing.T) {
 	// Arrange
-	os.Setenv(resources.RequestMethod.String(), http.MethodGet)
 
 	testErr := WaggyError{
 		Type:   resources.TestRoute,
