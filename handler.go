@@ -249,9 +249,8 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		wh.route = wh.route[1:]
 	}
 
-	var rootRoute bool
 	if rr := r.Context().Value(resources.RootRoute); rr != nil {
-		if rootRoute && wh.route != "/" {
+		if wh.route != "/" {
 			noRoot := WaggyError{
 				Title:    "Resource not found",
 				Detail:   "route not found",
