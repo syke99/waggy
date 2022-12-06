@@ -293,6 +293,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if section == "" {
 			continue
 		}
+
 		beginning := section[:1]
 		middle := section[1 : len(section)-1]
 		end := section[len(section)-1:]
@@ -310,11 +311,11 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	qp := strings.Split(q, "&")
 
-	if !wh.fullCGI {
+	if wh.fullCGI {
 		qp = os.Args[1:]
 	}
 
-	if qp[0] != "" {
+	if len(qp) != 0 && qp[0] != "" {
 		for _, _qp := range qp {
 			sqp := strings.Split(_qp, "=")
 
