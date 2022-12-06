@@ -99,7 +99,11 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		splitRoute := strings.Split(rRoute, "/")
 
-		splitKey := strings.Split(key[1:], "/")
+		if key[:1] == "/" {
+			key = key[1:]
+		}
+
+		splitKey := strings.Split(key, "/")
 
 		for i, section := range splitKey {
 			beginning := section[:1]

@@ -29,13 +29,9 @@ func WriteDefaultResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.NoDefaultResponse.Error())
 	}
 
-	fn := rv.(func(wr http.ResponseWriter) (int, error))
+	fn := rv.(func(wr http.ResponseWriter))
 
-	_, err := fn(w)
-
-	if err != nil {
-		fmt.Fprintln(w, err)
-	}
+	fn(w)
 }
 
 // WriteDefaultErrorResponse returns the result of writing the set
@@ -48,13 +44,9 @@ func WriteDefaultErrorResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.NoDefaultErrorResponse.Error())
 	}
 
-	fn := rv.(func(wr http.ResponseWriter) (int, error))
+	fn := rv.(func(wr http.ResponseWriter))
 
-	_, err := fn(w)
-
-	if err != nil {
-		fmt.Fprintln(w, err)
-	}
+	fn(w)
 }
 
 // Vars returns the route variables for the current request, if any.
