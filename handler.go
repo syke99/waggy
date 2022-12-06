@@ -58,9 +58,18 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 // InitHandlerWithRoute initialized a new WaggyHandler with the provided
 // route and returns a pointer to it. It is intended to be used whenever
 // only compiling an individual *WaggyHandler instead of a full *WaggyRouter
-func InitHandlerWithRoute(route string) *WaggyHandler {
+func InitHandlerWithRoute(route string, cgi *FullCGI) *WaggyHandler {
 	if route[:1] == "/" {
 		route = route[1:]
+	}
+	var o bool
+	var err error
+
+	if cgi != nil {
+		o, err = strconv.ParseBool(string(*cgi))
+		if err != nil {
+			o = false
+		}
 	}
 
 	w := WaggyHandler{
@@ -69,6 +78,9 @@ func InitHandlerWithRoute(route string) *WaggyHandler {
 		defErrResp:     WaggyError{},
 		defErrRespCode: 0,
 		handlerMap:     make(map[string]http.HandlerFunc),
+		logger:         nil,
+		parentLogger:   nil,
+		fullCGI:        o,
 	}
 
 	return &w
