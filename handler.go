@@ -311,7 +311,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	qp := strings.Split(q, "&")
 
-	if wh.fullCGI {
+	if !wh.fullCGI {
 		qp = os.Args[1:]
 	}
 
