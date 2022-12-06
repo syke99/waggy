@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -218,7 +219,9 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	queryParams := make(map[string][]string)
 
-	qp := strings.Split(os.Getenv(resources.QueryString.String()), "&")
+	q, _ := url.QueryUnescape(r.URL.RawQuery)
+
+	qp := strings.Split(q, "&")
 
 	if !wh.fullCGI {
 		qp = os.Args[1:]
@@ -269,7 +272,5 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r = r.Clone(ctx)
 
-	method := os.Getenv(resources.RequestMethod.String())
-
-	wh.handlerMap[method](w, r)
+	wh.handlerMap[r.Method](w, r)
 }
