@@ -26,7 +26,7 @@ func TestVars_Hello(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams)
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -56,7 +56,7 @@ func TestVars_Goodbye(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams)
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -87,7 +87,7 @@ func TestVars_NoPathParams(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute)
+	handler := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	handler.MethodHandler(http.MethodGet, greetingHandler)
 
@@ -109,7 +109,7 @@ func TestWriteDefaultResponse(t *testing.T) {
 		WriteDefaultResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute).
+	handler := InitHandlerWithRoute(resources.TestRoute, nil).
 		MethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultResponse([]byte(resources.Hello))
 
@@ -138,7 +138,7 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 		WriteDefaultErrorResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute).
+	handler := InitHandlerWithRoute(resources.TestRoute, nil).
 		MethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
 

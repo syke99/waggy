@@ -26,7 +26,7 @@ func TestInitHandler(t *testing.T) {
 
 func TestInitHandlerWithRoute(t *testing.T) {
 	// Act
-	w := InitHandlerWithRoute(resources.TestRoute)
+	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
@@ -294,7 +294,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	w := InitHandlerWithRoute(resources.TestRoute)
+	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	w.MethodHandler(http.MethodGet, helloHandler)
 	w.MethodHandler(http.MethodDelete, goodbyeHandler)
@@ -351,7 +351,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	w := InitHandlerWithRoute(resources.TestRoute)
+	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	w.MethodHandler(http.MethodGet, helloHandler)
 	w.MethodHandler(http.MethodDelete, goodbyeHandler)
