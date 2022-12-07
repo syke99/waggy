@@ -42,7 +42,7 @@ func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 	w := InitHandler(nil)
 
 	// Act
-	w.WithDefaultResponse([]byte(resources.HelloWorld))
+	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
 	// Assert
 	assert.IsType(t, &WaggyHandler{}, w)
@@ -299,7 +299,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	w.MethodHandler(http.MethodGet, helloHandler)
 	w.MethodHandler(http.MethodDelete, goodbyeHandler)
 
-	w.WithDefaultResponse([]byte(resources.HelloWorld))
+	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
 	testErr := WaggyError{
 		Type:   resources.TestRoute,
@@ -356,7 +356,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 	w.MethodHandler(http.MethodGet, helloHandler)
 	w.MethodHandler(http.MethodDelete, goodbyeHandler)
 
-	w.WithDefaultResponse([]byte(resources.HelloWorld))
+	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
 	testErr := WaggyError{
 		Type:   resources.TestRoute,

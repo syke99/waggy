@@ -111,7 +111,7 @@ func TestWriteDefaultResponse(t *testing.T) {
 
 	handler := InitHandlerWithRoute(resources.TestRoute, nil).
 		MethodHandler(http.MethodGet, defRespHandler).
-		WithDefaultResponse([]byte(resources.Hello))
+		WithDefaultResponse(resources.TestContentType, []byte(resources.Hello))
 
 	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamHello, nil)
 
