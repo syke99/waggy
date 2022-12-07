@@ -2,9 +2,7 @@ package waggy
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -162,37 +160,6 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 	wh.handlerMap[method] = handler
 
 	return wh
-}
-
-func (wh *WaggyHandler) ServeFile(w http.ResponseWriter, filePath string) {
-	var err error
-	if filePath == "" {
-		err = errors.New("no path to file provided")
-	}
-
-	file, err := os.Open(filePath)
-
-	cTBuf := make([]byte, 0, 512)
-
-	if err == nil {
-		_, err = file.Read(cTBuf)
-	}
-
-	if err == nil {
-		w.Header().Set("content-type", "application/octet-stream")
-		_, err = io.Copy(w, file)
-	}
-
-	if err != nil {
-		wh.Logger().
-			Err(err).
-			Msg("Method:", "ServeFile").
-			Log()
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Header().Set("content-type", "text/plain")
-		w.Write([]byte("Error serving file"))
-	}
 }
 
 func (wh *WaggyHandler) buildErrorJSON() string {
