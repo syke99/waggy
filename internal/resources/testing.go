@@ -45,4 +45,5 @@ var (
 
 		return m
 	}
+	TestEnvs = []string{}
 )

@@ -149,7 +149,7 @@ func buildLogJSON(log map[string]string) string {
 				logJSON = fmt.Sprintf("%s,", logJSON)
 			}
 
-			logJSON = fmt.Sprintf("%[1]s \"%[2]s\":\"%[3]s\"", logJSON, key, value)
+			logJSON = fmt.Sprintf("%[1]s \"%[2]s\": \"%[3]s\"", logJSON, key, value)
 		}
 	}
 
