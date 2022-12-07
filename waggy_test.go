@@ -155,6 +155,43 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s\n", handler.buildErrorJSON()), wr.Body.String())
 }
 
+func TestServeFile(t *testing.T) {
+	// Arrange
+	wr := httptest.NewRecorder()
+
+	// Act
+	ServeFile(wr, resources.TestContentType, resources.TestFilePath)
+
+	// Assert
+	assert.Equal(t, http.StatusOK, wr.Code)
+	assert.Equal(t, "application/json", wr.Header().Get("content-type"))
+}
+
+func TestServeFile_NoContentType(t *testing.T) {
+	// Arrange
+	wr := httptest.NewRecorder()
+
+	// Act
+	ServeFile(wr, "", resources.TestFilePath)
+
+	// Assert
+	assert.Equal(t, http.StatusOK, wr.Code)
+	assert.Equal(t, "application/octet-stream", wr.Header().Get("content-type"))
+}
+
+func TestServeFile_NoPathToFile(t *testing.T) {
+	// Arrange
+	wr := httptest.NewRecorder()
+
+	// Act
+	ServeFile(wr, resources.TestContentType, "")
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, wr.Code)
+	assert.Equal(t, "application/problem+json", wr.Header().Get("content-type"))
+	assert.Equal(t, resources.TestErrorResponse, wr.Body.String())
+}
+
 func TestServe_Router(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil)

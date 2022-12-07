@@ -1,9 +1,12 @@
 package waggy
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cgi"
+	"os"
 
 	"github.com/syke99/waggy/internal/resources"
 )
@@ -63,4 +66,51 @@ func Vars(r *http.Request) map[string]string {
 // a bare http.Handler
 func Serve[W WaggyEntryPoint](entryPoint W) error {
 	return cgi.Serve(entryPoint)
+}
+
+// ServeFile is a convenience function for serving the file at the given filePath to the given
+// http.ResponseWriter (w). If Waggy cannot find a file at the given path (if it doesn't exist
+// or the volume was incorrectly mounted), this function will return a status 404. If any other
+// error occurs, this function will return a 500. If no contentType is given, this function will
+// set the Content-Type header to "application/octet-stream"
+func ServeFile(w http.ResponseWriter, contentType string, filePath string) {
+	var err error
+
+	errMsg := WaggyError{
+		Title:  "",
+		Status: 0,
+	}
+
+	if filePath == "" {
+		err = errors.New("no path to file provided")
+		errMsg.Title = "Resource Not Found"
+		errMsg.Status = http.StatusNotFound
+	}
+
+	file := new(os.File)
+	if err == nil {
+		file, err = os.Open(filePath)
+	}
+
+	if err == nil {
+		if contentType == "" {
+			contentType = "application/octet-stream"
+		}
+		w.Header().Set("content-type", contentType)
+		_, err = io.Copy(w, file)
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		if errMsg.Status == 0 {
+			errMsg.Status = http.StatusInternalServerError
+			errMsg.Title = "Internal Server Error"
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		errJSON := fmt.Sprintf("{ \"title\": \"%[1]s\", \"detail\": \"%[2]s\", \"status\": \"%[3]d\" }", errMsg.Title, err.Error(), errMsg.Status)
+
+		w.Header().Set("content-type", "application/problem+json")
+		fmt.Fprint(w, errJSON)
+	}
 }
