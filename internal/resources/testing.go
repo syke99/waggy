@@ -22,7 +22,7 @@ const (
 	TestRoutePathParams       = "/test/route/{param}"
 	TestRoutePathParamHello   = "/test/route/hello"
 	TestRoutePathParamGoodbye = "/test/route/goodbye"
-	TestErrorResponse         = "{ \"title\": \"Resource Not Found\", \"detail\": \"open : no such file or directory\", \"status\": \"404\" }"
+	TestErrorResponse         = "{ \"title\": \"Resource Not Found\", \"detail\": \"no path to file provided\", \"status\": \"404\" }"
 )
 
 var (

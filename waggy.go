@@ -87,7 +87,10 @@ func ServeFile(w http.ResponseWriter, contentType string, filePath string) {
 		errMsg.Status = http.StatusNotFound
 	}
 
-	file, err := os.Open(filePath)
+	file := new(os.File)
+	if err == nil {
+		file, err = os.Open(filePath)
+	}
 
 	if err == nil {
 		if contentType == "" {
