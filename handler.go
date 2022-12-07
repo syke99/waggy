@@ -167,7 +167,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 	errStr := "{"
 
 	if wh.defErrResp.Type != "" {
-		errStr = fmt.Sprintf("%[1]s \"type\":\"%[2]s\"", errStr, wh.defErrResp.Type)
+		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\"", errStr, wh.defErrResp.Type)
 	}
 
 	if wh.defErrResp.Title != "" {
@@ -175,7 +175,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"title\":\"%[2]s\"", errStr, wh.defErrResp.Title)
+		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\"", errStr, wh.defErrResp.Title)
 	}
 
 	if wh.defErrResp.Detail != "" {
@@ -183,7 +183,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"detail\":\"%[2]s\"", errStr, wh.defErrResp.Detail)
+		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\"", errStr, wh.defErrResp.Detail)
 	}
 
 	if wh.defErrResp.Status != 0 {
@@ -191,7 +191,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"status\":\"%[2]d\"", errStr, wh.defErrResp.Status)
+		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\"", errStr, wh.defErrResp.Status)
 	}
 
 	if wh.defErrResp.Instance != "" {
@@ -199,7 +199,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"instance\":\"%[2]s\"", errStr, wh.defErrResp.Instance)
+		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\"", errStr, wh.defErrResp.Instance)
 	}
 
 	if wh.defErrResp.Field != "" {
@@ -207,7 +207,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"field\":\"%[2]s\"", errStr, wh.defErrResp.Field)
+		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wh.defErrResp.Field)
 	}
 
 	return fmt.Sprintf("%[1]s }", errStr)
