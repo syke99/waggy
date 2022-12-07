@@ -17,6 +17,7 @@ const (
 	WhereAmI                  = "where am I?"
 	HelloWorld                = "hello world"
 	TestFilePath              = "./internal/resources/testing.go"
+	TestContentType           = "application/json"
 	TestRoute                 = "/test/route"
 	TestRoutePathParams       = "/test/route/{param}"
 	TestRoutePathParamHello   = "/test/route/hello"

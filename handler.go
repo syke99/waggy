@@ -19,6 +19,7 @@ import (
 type WaggyHandler struct {
 	route                string
 	defResp              []byte
+	defRespContType      string
 	defErrResp           WaggyError
 	defErrRespCode       int
 	handlerMap           map[string]http.HandlerFunc
@@ -42,14 +43,15 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 	}
 
 	w := WaggyHandler{
-		route:          "",
-		defResp:        make([]byte, 0),
-		defErrResp:     WaggyError{},
-		defErrRespCode: 0,
-		handlerMap:     make(map[string]http.HandlerFunc),
-		logger:         nil,
-		parentLogger:   nil,
-		fullCGI:        o,
+		route:           "",
+		defResp:         make([]byte, 0),
+		defRespContType: "",
+		defErrResp:      WaggyError{},
+		defErrRespCode:  0,
+		handlerMap:      make(map[string]http.HandlerFunc),
+		logger:          nil,
+		parentLogger:    nil,
+		fullCGI:         o,
 	}
 
 	return &w
@@ -138,8 +140,9 @@ func (wh *WaggyHandler) inheritFullCgiFlag(cgi bool) {
 
 // WithDefaultResponse allows you to set a default response for
 // individual handlers
-func (wh *WaggyHandler) WithDefaultResponse(body []byte) *WaggyHandler {
+func (wh *WaggyHandler) WithDefaultResponse(contentType string, body []byte) *WaggyHandler {
 	wh.defResp = body
+	wh.defRespContType = contentType
 
 	return wh
 }
@@ -333,7 +336,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if len(wh.defResp) != 0 {
 		ctx = context.WithValue(ctx, resources.DefResp, func(w http.ResponseWriter) {
-			w.Header().Set("Content-Type", "application/octet-stream")
+			w.Header().Set("Content-Type", wh.defRespContType)
 
 			fmt.Fprintln(w, string(wh.defResp))
 		})
