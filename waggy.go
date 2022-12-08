@@ -52,7 +52,18 @@ func WriteDefaultErrorResponse(w http.ResponseWriter, r *http.Request) {
 	fn(w)
 }
 
-// Vars returns the route variables for the current request, if any.
+// Log returns the *Logger for the current request handler
+// to log a message to the set *os.File (defautls to os.Stderr)
+// if one exists, otherwise nil
+func Log(r *http.Request) *Logger {
+	if rv := r.Context().Value(resources.Logger); rv != nil {
+		return rv.(*Logger)
+	}
+	return nil
+}
+
+// Vars returns the values matching any path parameters if they exist,
+// otherwise returns nil
 func Vars(r *http.Request) map[string]string {
 	if rv := r.Context().Value(resources.PathParams); rv != nil {
 		return rv.(map[string]string)

@@ -132,15 +132,38 @@ func TestLogger_Msg(t *testing.T) {
 		message:  "",
 		err:      "",
 		vals:     make(map[string]interface{}),
+		log:      os.Stdout,
+	}
+	testKey := resources.TestKey
+	testMsg := resources.TestMessage
+
+	// Act
+	_, err := l.Msg(testKey, testMsg)
+
+	// Assert
+	assert.NoError(t, err)
+	assert.Equal(t, resources.TestKey, l.key)
+	assert.Equal(t, resources.TestMessage, l.message)
+}
+
+func TestLogger_Msg_Error(t *testing.T) {
+	// Arrange
+	l := Logger{
+		logLevel: "",
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
 		log:      nil,
 	}
 	testKey := resources.TestKey
 	testMsg := resources.TestMessage
 
 	// Act
-	l.Msg(testKey, testMsg)
+	_, err := l.Msg(testKey, testMsg)
 
 	// Assert
+	assert.Error(t, err)
 	assert.Equal(t, resources.TestKey, l.key)
 	assert.Equal(t, resources.TestMessage, l.message)
 }
@@ -166,40 +189,4 @@ func TestLogger_Val(t *testing.T) {
 		assert.Equal(t, k, resources.TestKey)
 		assert.Equal(t, v, resources.TestValue)
 	}
-}
-
-func TestLogger_Log(t *testing.T) {
-	// Arrange
-	l := Logger{
-		logLevel: Info.level(),
-		key:      "",
-		message:  "",
-		err:      "",
-		vals:     make(map[string]interface{}),
-		log:      os.Stdout,
-	}
-
-	// Act
-	_, err := l.Log()
-
-	// Assert
-	assert.NoError(t, err)
-}
-
-func TestLogger_Log_Err(t *testing.T) {
-	// Arrange
-	l := Logger{
-		logLevel: Info.level(),
-		key:      "",
-		message:  "",
-		err:      "",
-		vals:     make(map[string]interface{}),
-		log:      nil,
-	}
-
-	// Act
-	_, err := l.Log()
-
-	// Assert
-	assert.Error(t, err)
 }

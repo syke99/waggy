@@ -325,6 +325,10 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx = context.WithValue(ctx, resources.QueryParams, queryParams)
 	}
 
+	if wh.logger != nil {
+		ctx = context.WithValue(ctx, resources.Logger, wh.logger)
+	}
+
 	r = r.Clone(ctx)
 
 	wh.handlerMap[r.Method](w, r)
