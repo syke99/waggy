@@ -4,11 +4,63 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/syke99/waggy/internal/resources"
 )
+
+func TestLog(t *testing.T) {
+	// Arrange
+	logger := Logger{
+		logLevel: "",
+		key:      "",
+		message:  "",
+		err:      "",
+		vals:     make(map[string]interface{}),
+		log:      os.Stdout,
+	}
+
+	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
+		l := Log(r)
+
+		// Assert
+		assert.NotNil(t, l)
+	}
+
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil).
+		WithLogger(&logger, nil)
+
+	handler.MethodHandler(http.MethodGet, greetingHandler)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
+
+	wr := httptest.NewRecorder()
+
+	handler.ServeHTTP(wr, r)
+}
+
+func TestLog_Error(t *testing.T) {
+	// Arrange
+	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
+		l := Log(r)
+
+		// Assert
+		assert.Nil(t, l)
+	}
+
+	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil).
+		WithLogger(nil, nil)
+
+	handler.MethodHandler(http.MethodGet, greetingHandler)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
+
+	wr := httptest.NewRecorder()
+
+	handler.ServeHTTP(wr, r)
+}
 
 func TestVars_Hello(t *testing.T) {
 	// Arrange
@@ -42,7 +94,6 @@ func TestVars_Hello(t *testing.T) {
 
 func TestVars_Goodbye(t *testing.T) {
 	// Arrange
-
 	greetingHandler := func(w http.ResponseWriter, r *http.Request) {
 		params := Vars(r)
 

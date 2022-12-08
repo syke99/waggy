@@ -101,14 +101,6 @@ func (l *Logger) Err(err error) *Logger {
 	return l
 }
 
-// Msg provide a message with a key to be logged by the *Logger
-func (l *Logger) Msg(key string, msg string) *Logger {
-	l.key = key
-	l.message = msg
-
-	return l
-}
-
 // Val add a value with the corresponding key to be logged by the *Logger
 func (l *Logger) Val(key string, val any) *Logger {
 	l.vals[key] = val
@@ -116,9 +108,12 @@ func (l *Logger) Val(key string, val any) *Logger {
 	return l
 }
 
-// Log builds out the line to be logged and then writes it to the *Logger's
-// log file
-func (l *Logger) Log() (int, error) {
+// Msg provide a message with a key to be logged and then
+// logs the constructed log messed to the set *os.File (or default to os.Stderr)
+func (l *Logger) Msg(key string, msg string) (int, error) {
+	l.key = key
+	l.message = msg
+
 	lm := make(map[string]string)
 
 	lm["level"] = l.logLevel

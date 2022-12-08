@@ -9,4 +9,5 @@ const (
 	RootRoute
 	PathParams
 	QueryParams
+	Logger
 )
