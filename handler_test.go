@@ -120,6 +120,66 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	}
 }
 
+func TestWaggyHandler_RestrictMethods(t *testing.T) {
+	// Arrange
+	w := InitHandler(nil)
+
+	// Act
+	w = w.RestrictMethods(http.MethodGet,
+		http.MethodPut,
+		http.MethodPost,
+		http.MethodPatch,
+		http.MethodDelete,
+		http.MethodConnect,
+		http.MethodHead,
+		http.MethodTrace,
+		http.MethodOptions)
+
+	// Assert
+	for k := range resources.AllHTTPMethods() {
+		_, ok := w.restrictedMethods[k]
+		assert.True(t, ok)
+	}
+}
+
+func TestWaggyHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
+	// Arrange
+	w := InitHandler(nil)
+	test := "this isn't an http method"
+
+	// Act
+	w = w.RestrictMethods(test)
+
+	_, ok := w.restrictedMethods[test]
+
+	// Assert
+	assert.Equal(t, 0, len(w.restrictedMethods))
+	assert.False(t, ok)
+}
+
+func TestWaggyHandler_WithRestrictedMethodHandler(t *testing.T) {
+	// Arrange
+	w := InitHandler(nil)
+	testHandler := func(w http.ResponseWriter, r *http.Request) {}
+
+	// Act
+	w.WithRestrictedMethodHandler(testHandler)
+
+	// Asset
+	assert.NotNil(t, w.restrictedMethodFunc)
+}
+
+func TestWaggyHandler_WithRestrictedMethodHandler_NoHandler(t *testing.T) {
+	// Arrange
+	w := InitHandler(nil)
+
+	// Act
+	w.WithRestrictedMethodHandler(nil)
+
+	// Asset
+	assert.Nil(t, w.restrictedMethodFunc)
+}
+
 func TestWaggyHandler_WithLogger(t *testing.T) {
 	// Arrange
 	testLog := resources.TestLogFile
