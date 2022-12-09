@@ -103,10 +103,16 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if rRoute == "" || rRoute == "/" {
 		if handler, ok := wr.router["/"]; !ok {
+			w.WriteHeader(http.StatusNotFound)
 			w.Header().Set("Content-Type", "application/problem+json")
 			fmt.Fprintln(w, wr.buildErrorJSON())
 		} else {
+			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
+
+			r = r.Clone(ctx)
+
 			handler.ServeHTTP(w, r)
+			return
 		}
 	}
 
@@ -150,15 +156,6 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if rRoute == "/" {
-			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
-
-			r = r.Clone(ctx)
-
-			handler.ServeHTTP(w, r)
-			break
-		}
-
 		if rt != "" {
 			ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
 
@@ -169,6 +166,7 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	w.WriteHeader(http.StatusNotFound)
 	w.Header().Set("Content-Type", "application/problem+json")
 	fmt.Fprintln(w, wr.buildErrorJSON())
 }
