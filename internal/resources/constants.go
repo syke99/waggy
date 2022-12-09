@@ -14,15 +14,17 @@ const (
 	Logger
 )
 
-var AllHTTPMethods = func() []string {
-	return []string{
-		http.MethodGet,
-		http.MethodDelete,
-		http.MethodPut,
-		http.MethodPost,
-		http.MethodPatch,
-		http.MethodConnect,
-		http.MethodTrace,
-		http.MethodHead,
-	}
+var AllHTTPMethods = func() map[string]struct{} {
+	m := make(map[string]struct{})
+	m[http.MethodGet] = struct{}{}
+	m[http.MethodPut] = struct{}{}
+	m[http.MethodPost] = struct{}{}
+	m[http.MethodPatch] = struct{}{}
+	m[http.MethodOptions] = struct{}{}
+	m[http.MethodConnect] = struct{}{}
+	m[http.MethodDelete] = struct{}{}
+	m[http.MethodTrace] = struct{}{}
+	m[http.MethodHead] = struct{}{}
+
+	return m
 }

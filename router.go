@@ -16,10 +16,11 @@ import (
 // Handle on the return router and provide a route for the *WaggyHandler
 // you provide
 type WaggyRouter struct {
-	logger  *Logger
-	router  map[string]*WaggyHandler
-	noRoute WaggyError
-	fullCGI bool
+	logger      *Logger
+	router      map[string]*WaggyHandler
+	noRoute     WaggyError
+	noRouteFunc http.HandlerFunc
+	fullCGI     bool
 }
 
 // InitRouter initializes a new WaggyRouter and returns a pointer
@@ -88,6 +89,15 @@ func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
 	return wr
 }
 
+// WithNoRouteHandler allows you to set an http.HandlerFunc to be used whenever
+// no route is found. If this method is not called and the ServeHTTP method
+// has been called, then it will return a generic 404 response, instead
+func (wr *WaggyRouter) WithNoRouteHandler(fn http.HandlerFunc) *WaggyRouter {
+	wr.noRouteFunc = fn
+
+	return wr
+}
+
 // Logger returns the WaggyRouter's logger
 func (wr *WaggyRouter) Logger() *Logger {
 	return wr.logger
@@ -103,9 +113,9 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if rRoute == "" || rRoute == "/" {
 		if handler, ok := wr.router["/"]; !ok {
-			w.WriteHeader(http.StatusNotFound)
-			w.Header().Set("Content-Type", "application/problem+json")
-			fmt.Fprintln(w, wr.buildErrorJSON())
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			wr.noRouteResponse(w, r)
+			return
 		} else {
 			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
 
@@ -182,6 +192,16 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			handler.ServeHTTP(w, r)
 			return
 		}
+	}
+
+	wr.noRouteResponse(w, r)
+	return
+}
+
+func (wr *WaggyRouter) noRouteResponse(w http.ResponseWriter, r *http.Request) {
+	if wr.noRouteFunc != nil {
+		wr.noRouteFunc(w, r)
+		return
 	}
 
 	w.WriteHeader(http.StatusNotFound)

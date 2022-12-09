@@ -21,6 +21,8 @@ type WaggyHandler struct {
 	defErrResp           WaggyError
 	defErrRespCode       int
 	handlerMap           map[string]http.HandlerFunc
+	restrictedMethods    map[string]struct{}
+	restrictedMethodFunc http.HandlerFunc
 	logger               *Logger
 	parentLogger         *Logger
 	parentLoggerOverride bool
@@ -41,15 +43,16 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 	}
 
 	w := WaggyHandler{
-		route:           "",
-		defResp:         make([]byte, 0),
-		defRespContType: "",
-		defErrResp:      WaggyError{},
-		defErrRespCode:  0,
-		handlerMap:      make(map[string]http.HandlerFunc),
-		logger:          nil,
-		parentLogger:    nil,
-		fullCGI:         o,
+		route:             "",
+		defResp:           make([]byte, 0),
+		defRespContType:   "",
+		defErrResp:        WaggyError{},
+		defErrRespCode:    0,
+		handlerMap:        make(map[string]http.HandlerFunc),
+		restrictedMethods: make(map[string]struct{}),
+		logger:            nil,
+		parentLogger:      nil,
+		fullCGI:           o,
 	}
 
 	return &w
@@ -163,13 +166,40 @@ var AllHTTPMethods = func() string {
 // MethodHandler allows you to map a different handler to each HTTP Method
 // for a single route.
 func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *WaggyHandler {
+	if _, ok := resources.AllHTTPMethods()[method]; !ok {
+		return wh
+	}
+
 	if method == "ALL" {
-		for _, v := range resources.AllHTTPMethods() {
-			wh.handlerMap[v] = handler
+		for k, _ := range resources.AllHTTPMethods() {
+			wh.handlerMap[k] = handler
 		}
 	} else {
 		wh.handlerMap[method] = handler
 	}
+
+	return wh
+}
+
+// RestrictMethods is a variadic function for restricting a handler from being able
+// to be executed on the given methods
+func (wh *WaggyHandler) RestrictMethods(methods ...string) *WaggyHandler {
+	for _, method := range methods {
+		if _, ok := resources.AllHTTPMethods()[method]; !ok {
+			continue
+		}
+		wh.restrictedMethods[method] = struct{}{}
+	}
+
+	return wh
+}
+
+// WithRestrictedMethodHandler allows you to set an http.HandlerFunc to be used
+// whenever a request with a restricted HTTP Method is hit. Whenever ServeHTTP is
+// called, if this method has not been called and a restricted method has been set
+// and is hit by the incoming request, it will return a generic 405 error, instead
+func (wh *WaggyHandler) WithRestrictedMethodHandler(fn http.HandlerFunc) *WaggyHandler {
+	wh.restrictedMethodFunc = fn
 
 	return wh
 }
@@ -179,7 +209,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 	errStr := "{"
 
 	if wh.defErrResp.Type != "" {
-		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\"", errStr, wh.defErrResp.Type)
+		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\",", errStr, wh.defErrResp.Type)
 	}
 
 	if wh.defErrResp.Title != "" {
@@ -187,7 +217,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\"", errStr, wh.defErrResp.Title)
+		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\",", errStr, wh.defErrResp.Title)
 	}
 
 	if wh.defErrResp.Detail != "" {
@@ -195,7 +225,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\"", errStr, wh.defErrResp.Detail)
+		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\",", errStr, wh.defErrResp.Detail)
 	}
 
 	if wh.defErrResp.Status != 0 {
@@ -203,7 +233,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\"", errStr, wh.defErrResp.Status)
+		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\",", errStr, wh.defErrResp.Status)
 	}
 
 	if wh.defErrResp.Instance != "" {
@@ -211,7 +241,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\"", errStr, wh.defErrResp.Instance)
+		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\",", errStr, wh.defErrResp.Instance)
 	}
 
 	if wh.defErrResp.Field != "" {
@@ -222,29 +252,47 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wh.defErrResp.Field)
 	}
 
+	if errStr[len(errStr)-1:] == "," {
+		errStr = errStr[:len(errStr)-1]
+	}
+
 	return fmt.Sprintf("%[1]s }", errStr)
 }
 
 // ServeHTTP serves the route
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if wh.route[:1] == "/" {
+	if _, ok := wh.restrictedMethods[r.Method]; ok {
+		if wh.restrictedMethodFunc != nil {
+			wh.restrictedMethodFunc(w, r)
+			return
+		}
+
+		r.URL.Opaque = ""
+		rRoute := r.URL.Path
+
+		methodNotAllowed := WaggyError{
+			Title:    "Method Not Allowed",
+			Detail:   "method not allowed",
+			Status:   405,
+			Instance: rRoute,
+		}
+
+		wh.defErrResp = methodNotAllowed
+
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Header().Set("Content-Type", "application/problem+json")
+		fmt.Fprintln(w, wh.buildErrorJSON())
+		return
+	}
+
+	if len(wh.route) != 1 && wh.route[:1] == "/" {
 		wh.route = wh.route[1:]
 	}
 
 	if rr := r.Context().Value(resources.RootRoute); rr != nil {
-		if wh.route != "/" {
-			noRoot := WaggyError{
-				Title:    "Resource not found",
-				Detail:   "route not found",
-				Status:   404,
-				Instance: "/",
-			}
+		ctx := context.WithValue(r.Context(), resources.MatchedRoute, "/")
 
-			wh.defErrResp = noRoot
-
-			w.Header().Set("Content-Type", "application/problem+json")
-			fmt.Fprintln(w, wh.buildErrorJSON())
-		}
+		r = r.Clone(ctx)
 	}
 
 	splitRoute := strings.Split(wh.route, "/")
@@ -272,7 +320,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i, section := range splitRoute {
-		if section == "" {
+		if section == "" || section == "/" {
 			continue
 		}
 
