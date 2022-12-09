@@ -2,6 +2,7 @@ package waggy
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,6 +18,7 @@ import (
 type WaggyRouter struct {
 	logger  *Logger
 	router  map[string]*WaggyHandler
+	noRoute WaggyError
 	fullCGI bool
 }
 
@@ -34,7 +36,14 @@ func InitRouter(cgi *FullCGI) *WaggyRouter {
 	}
 
 	r := WaggyRouter{
-		router:  make(map[string]*WaggyHandler),
+		logger: nil,
+		router: make(map[string]*WaggyHandler),
+		noRoute: WaggyError{
+			Title:    "Resource not found",
+			Detail:   "route not found",
+			Status:   404,
+			Instance: "/",
+		},
 		fullCGI: o,
 	}
 
@@ -89,11 +98,20 @@ func (wr *WaggyRouter) Logger() *Logger {
 func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rt := ""
 
-	for key, handler := range wr.router {
-		r.URL.Opaque = ""
-		rRoute := r.URL.Path
+	r.URL.Opaque = ""
+	rRoute := r.URL.Path
 
-		if rRoute != "/" {
+	if rRoute == "" || rRoute == "/" {
+		if handler, ok := wr.router["/"]; !ok {
+			w.Header().Set("Content-Type", "application/problem+json")
+			fmt.Fprintln(w, wr.buildErrorJSON())
+		} else {
+			handler.ServeHTTP(w, r)
+		}
+	}
+
+	for key, handler := range wr.router {
+		if rRoute != "/" && rRoute != "" {
 			if rRoute[:1] == "/" {
 				rRoute = rRoute[1:]
 			}
@@ -147,7 +165,61 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			r = r.Clone(ctx)
 
 			handler.ServeHTTP(w, r)
-			break
+			return
 		}
 	}
+
+	w.Header().Set("Content-Type", "application/problem+json")
+	fmt.Fprintln(w, wr.buildErrorJSON())
+}
+
+func (wr *WaggyRouter) buildErrorJSON() string {
+
+	errStr := "{"
+
+	if wr.noRoute.Type != "" {
+		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\"", errStr, wr.noRoute.Type)
+	}
+
+	if wr.noRoute.Title != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\"", errStr, wr.noRoute.Title)
+	}
+
+	if wr.noRoute.Detail != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\"", errStr, wr.noRoute.Detail)
+	}
+
+	if wr.noRoute.Status != 0 {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\"", errStr, wr.noRoute.Status)
+	}
+
+	if wr.noRoute.Instance != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\"", errStr, wr.noRoute.Instance)
+	}
+
+	if wr.noRoute.Field != "" {
+		if errStr[:1] != "{" {
+			errStr = fmt.Sprintf("%[1]s,", errStr)
+		}
+
+		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wr.noRoute.Field)
+	}
+
+	return fmt.Sprintf("%[1]s }", errStr)
 }
