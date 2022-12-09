@@ -1,6 +1,5 @@
 # Waggy
 [![Go Reference](https://pkg.go.dev/badge/github.com/syke99/waggy.svg)](https://pkg.go.dev/github.com/syke99/waggy)
-[![GolangCI](https://golangci.com/badges/github.com/syke99/waggy.svg)](https://golangci.com/r/github.com/syke99/waggy)
 [![Go Reportcard](https://goreportcard.com/badge/github.com/syke99/waggy)](https://goreportcard.com/report/github.com/syke99/waggy)
 [![Codecov](https://codecov.io/gh/syke99/waggy/branch/main/graph/badge.svg?token=KDYH3JO1QI)](https://codecov.io/gh/syke99/waggy)
 [![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
@@ -22,13 +21,12 @@ their own WASM modules, too, so you can use the conventional modules.toml file f
 
 </br>
 
-#### v0.4.0 improvements:
-* **CGI vs WAGI**: The biggest improvement with the v0.4 release of Waggy is the ability to use Waggy to
-to be compiled to WASM files that can run in both WAGI and regular CGI environments. All you need to do is
-declare a variable like so `var CGIFlag FullCgi` in `main.go` and pass it into the functions to initialize
-both WaggyRouters and WaggyHandlers. Then whenever compiling your WASM file with TinyGo, simply provide an
-ldflags build flag like so `-ldflags "-X <path_to_main>.CGIFlag=<VALUE>"` where VALUE is set to 0 for WAGI
-and 1 for regular CGI
+#### v0.5.0 improvements:
+* **Restricting Methods**: With v0.5.0, you have the ability restrict HTTP methods on your handlers to make sure your endpoints
+are more secure 
+
+* **No Matched Routes**: Another added feature in v0.5.0 is handling cases where no routes are matches to the route of the incoming
+request with generic 405 responses, as well as the ability to set custom handlers for the same edge case
 
 How do I use Waggy?
 ====
