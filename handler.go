@@ -209,7 +209,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 	errStr := "{"
 
 	if wh.defErrResp.Type != "" {
-		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\"", errStr, wh.defErrResp.Type)
+		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\",", errStr, wh.defErrResp.Type)
 	}
 
 	if wh.defErrResp.Title != "" {
@@ -217,7 +217,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\"", errStr, wh.defErrResp.Title)
+		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\",", errStr, wh.defErrResp.Title)
 	}
 
 	if wh.defErrResp.Detail != "" {
@@ -225,7 +225,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\"", errStr, wh.defErrResp.Detail)
+		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\",", errStr, wh.defErrResp.Detail)
 	}
 
 	if wh.defErrResp.Status != 0 {
@@ -233,7 +233,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\"", errStr, wh.defErrResp.Status)
+		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\",", errStr, wh.defErrResp.Status)
 	}
 
 	if wh.defErrResp.Instance != "" {
@@ -241,7 +241,7 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 			errStr = fmt.Sprintf("%[1]s,", errStr)
 		}
 
-		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\"", errStr, wh.defErrResp.Instance)
+		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\",", errStr, wh.defErrResp.Instance)
 	}
 
 	if wh.defErrResp.Field != "" {
@@ -250,6 +250,10 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 		}
 
 		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wh.defErrResp.Field)
+	}
+
+	if errStr[len(errStr)-1:] == "," {
+		errStr = errStr[:len(errStr)-1]
 	}
 
 	return fmt.Sprintf("%[1]s }", errStr)
@@ -267,7 +271,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		rRoute := r.URL.Path
 
 		methodNotAllowed := WaggyError{
-			Title:    "Method not allowed",
+			Title:    "Method Not Allowed",
 			Detail:   "method not allowed",
 			Status:   405,
 			Instance: rRoute,
@@ -275,8 +279,10 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		wh.defErrResp = methodNotAllowed
 
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Header().Set("Content-Type", "application/problem+json")
 		fmt.Fprintln(w, wh.buildErrorJSON())
+		return
 	}
 
 	if wh.route[:1] == "/" {
@@ -296,6 +302,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			w.Header().Set("Content-Type", "application/problem+json")
 			fmt.Fprintln(w, wh.buildErrorJSON())
+			return
 		}
 	}
 

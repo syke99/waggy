@@ -12,17 +12,19 @@ func GetFunctionName(i interface{}) string {
 }
 
 const (
-	Hello                     = "hello"
-	Goodbye                   = "goodbye"
-	WhereAmI                  = "where am I?"
-	HelloWorld                = "hello world"
-	TestFilePath              = "./internal/resources/testing.go"
-	TestContentType           = "application/json"
-	TestRoute                 = "/test/route"
-	TestRoutePathParams       = "/test/route/{param}"
-	TestRoutePathParamHello   = "/test/route/hello"
-	TestRoutePathParamGoodbye = "/test/route/goodbye"
-	TestErrorResponse         = "{ \"title\": \"Resource Not Found\", \"detail\": \"no path to file provided\", \"status\": \"404\" }"
+	Hello                           = "hello"
+	Goodbye                         = "goodbye"
+	WhereAmI                        = "where am I?"
+	HelloWorld                      = "hello world"
+	TestFilePath                    = "./internal/resources/testing.go"
+	TestContentType                 = "application/json"
+	TestRoute                       = "/test/route"
+	TestRoutePathParams             = "/test/route/{param}"
+	TestRoutePathParamHello         = "/test/route/hello"
+	TestRoutePathParamGoodbye       = "/test/route/goodbye"
+	TestErrorResponse               = "{ \"title\": \"Resource Not Found\", \"detail\": \"no path to file provided\", \"status\": \"404\" }"
+	TestMethodNotAllowed            = "{ \"title\": \"Method Not Allowed\", \"detail\": \"method not allowed\", \"status\": \"405\", \"instance\": \"/test/route\" }\n"
+	TestMethodNotAllowedHandlerResp = "this method isn't allowed, sorry\n"
 )
 
 var (
@@ -45,5 +47,4 @@ var (
 
 		return m
 	}
-	TestEnvs = []string{}
 )

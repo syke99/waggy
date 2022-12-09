@@ -322,12 +322,52 @@ func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, l.log)
 }
 
+func TestWaggyHandler_ServeHTTP_RestrictedMethod_NoHandler(t *testing.T) {
+	// Arrange
+	w := InitHandler(nil).
+		RestrictMethods(http.MethodGet)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
+
+	wr := httptest.NewRecorder()
+
+	// Act
+	w.ServeHTTP(wr, r)
+
+	// Assert
+	assert.Equal(t, http.StatusMethodNotAllowed, wr.Code)
+	assert.Equal(t, resources.TestMethodNotAllowed, wr.Body.String())
+}
+
+func TestWaggyHandler_ServeHTTP_RestrictedMethod_Handler(t *testing.T) {
+	// Arrange
+	noRouteHandler := func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintln(w, "this method isn't allowed, sorry")
+	}
+
+	w := InitHandler(nil).
+		RestrictMethods(http.MethodGet).
+		WithRestrictedMethodHandler(noRouteHandler)
+
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
+
+	wr := httptest.NewRecorder()
+
+	// Act
+	w.ServeHTTP(wr, r)
+
+	// Assert
+	assert.Equal(t, http.StatusMethodNotAllowed, wr.Code)
+	assert.Equal(t, resources.TestMethodNotAllowedHandlerResp, wr.Body.String())
+}
+
 func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
-
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
+
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
