@@ -154,10 +154,22 @@ func (wh *WaggyHandler) WithDefaultErrorResponse(err WaggyError, statusCode int)
 	return wh
 }
 
+// AllHTTPMethods allows you to easily set a
+// handler all HTTP Methods
+var AllHTTPMethods = func() string {
+	return "ALL"
+}
+
 // MethodHandler allows you to map a different handler to each HTTP Method
 // for a single route.
 func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *WaggyHandler {
-	wh.handlerMap[method] = handler
+	if method == "ALL" {
+		for _, v := range resources.AllHTTPMethods() {
+			wh.handlerMap[v] = handler
+		}
+	} else {
+		wh.handlerMap[method] = handler
+	}
 
 	return wh
 }

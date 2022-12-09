@@ -11,6 +11,14 @@ import (
 	"github.com/syke99/waggy/internal/resources"
 )
 
+func TestAllHTTPMethods(t *testing.T) {
+	// Act
+	all := AllHTTPMethods()
+
+	// Assert
+	assert.Equal(t, "ALL", all)
+}
+
 func TestInitHandler(t *testing.T) {
 	// Act
 	w := InitHandler(nil)
