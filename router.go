@@ -117,42 +117,40 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for key, handler := range wr.router {
-		if rRoute != "/" && rRoute != "" {
-			if rRoute[:1] == "/" {
-				rRoute = rRoute[1:]
+		if rRoute[:1] == "/" {
+			rRoute = rRoute[1:]
+		}
+
+		splitRoute := strings.Split(rRoute, "/")
+
+		if key[:1] == "/" {
+			key = key[1:]
+		}
+
+		splitKey := strings.Split(key, "/")
+
+		for i, section := range splitKey {
+			beginning := section[:1]
+			end := section[len(section)-1:]
+
+			// check if this section is a query param
+			if beginning == "{" &&
+				end == "}" {
+				continue
 			}
 
-			splitRoute := strings.Split(rRoute, "/")
-
-			if key[:1] == "/" {
-				key = key[1:]
+			// if the route sections don't match and aren't query
+			// params, break out as these are not the correctly matched
+			// routes
+			if splitRoute[i] != section {
+				break
 			}
 
-			splitKey := strings.Split(key, "/")
-
-			for i, section := range splitKey {
-				beginning := section[:1]
-				end := section[len(section)-1:]
-
-				// check if this section is a query param
-				if beginning == "{" &&
-					end == "}" {
-					continue
-				}
-
-				// if the route sections don't match and aren't query
-				// params, break out as these are not the correctly matched
-				// routes
-				if splitRoute[i] != section {
-					break
-				}
-
-				// if the end of splitRoute is reached, and we haven't
-				// broken out of the loop to move on to the next route,
-				// then the routes match
-				if i == len(splitKey)-1 {
-					rt = key
-				}
+			// if the end of splitRoute is reached, and we haven't
+			// broken out of the loop to move on to the next route,
+			// then the routes match
+			if i == len(splitKey)-1 {
+				rt = key
 			}
 		}
 
