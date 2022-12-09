@@ -21,6 +21,8 @@ type WaggyHandler struct {
 	defErrResp           WaggyError
 	defErrRespCode       int
 	handlerMap           map[string]http.HandlerFunc
+	restrictedMethods    map[string]struct{}
+	restrictedMethodFunc http.HandlerFunc
 	logger               *Logger
 	parentLogger         *Logger
 	parentLoggerOverride bool
@@ -41,15 +43,16 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 	}
 
 	w := WaggyHandler{
-		route:           "",
-		defResp:         make([]byte, 0),
-		defRespContType: "",
-		defErrResp:      WaggyError{},
-		defErrRespCode:  0,
-		handlerMap:      make(map[string]http.HandlerFunc),
-		logger:          nil,
-		parentLogger:    nil,
-		fullCGI:         o,
+		route:             "",
+		defResp:           make([]byte, 0),
+		defRespContType:   "",
+		defErrResp:        WaggyError{},
+		defErrRespCode:    0,
+		handlerMap:        make(map[string]http.HandlerFunc),
+		restrictedMethods: make(map[string]struct{}),
+		logger:            nil,
+		parentLogger:      nil,
+		fullCGI:           o,
 	}
 
 	return &w
@@ -163,13 +166,40 @@ var AllHTTPMethods = func() string {
 // MethodHandler allows you to map a different handler to each HTTP Method
 // for a single route.
 func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *WaggyHandler {
+	if _, ok := resources.AllHTTPMethods()[method]; !ok {
+		return wh
+	}
+
 	if method == "ALL" {
-		for _, v := range resources.AllHTTPMethods() {
-			wh.handlerMap[v] = handler
+		for k, _ := range resources.AllHTTPMethods() {
+			wh.handlerMap[k] = handler
 		}
 	} else {
 		wh.handlerMap[method] = handler
 	}
+
+	return wh
+}
+
+// RestrictMethods is a variadic function for restricting a handler from being able
+// to be executed on the given methods
+func (wh *WaggyHandler) RestrictMethods(methods ...string) *WaggyHandler {
+	for _, method := range methods {
+		if _, ok := resources.AllHTTPMethods()[method]; !ok {
+			continue
+		}
+		wh.restrictedMethods[method] = struct{}{}
+	}
+
+	return wh
+}
+
+// WithRestrictedMethodHandler allows you to set an http.HandlerFunc to be used
+// whenever a request with a restricted HTTP Method is hit. Whenever ServeHTTP is
+// called, if this method has not been called and a restricted method has been set
+// and is hit by the incoming request, it will return a generic 405 error, instead
+func (wh *WaggyHandler) WithRestrictedMethodHandler(fn http.HandlerFunc) *WaggyHandler {
+	wh.restrictedMethodFunc = fn
 
 	return wh
 }
@@ -227,6 +257,28 @@ func (wh *WaggyHandler) buildErrorJSON() string {
 
 // ServeHTTP serves the route
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if _, ok := wh.restrictedMethods[r.Method]; ok {
+		if wh.restrictedMethodFunc != nil {
+			wh.restrictedMethodFunc(w, r)
+			return
+		}
+
+		r.URL.Opaque = ""
+		rRoute := r.URL.Path
+
+		methodNotAllowed := WaggyError{
+			Title:    "Method not allowed",
+			Detail:   "method not allowed",
+			Status:   405,
+			Instance: rRoute,
+		}
+
+		wh.defErrResp = methodNotAllowed
+
+		w.Header().Set("Content-Type", "application/problem+json")
+		fmt.Fprintln(w, wh.buildErrorJSON())
+	}
+
 	if wh.route[:1] == "/" {
 		wh.route = wh.route[1:]
 	}
