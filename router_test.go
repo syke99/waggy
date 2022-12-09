@@ -21,6 +21,30 @@ func TestInitRouter(t *testing.T) {
 	assert.Equal(t, 0, len(w.router))
 }
 
+func TestInitRouter_Flg_Parsable(t *testing.T) {
+	// Act
+	var flg FullCGI = "1"
+	w := InitRouter(&flg)
+
+	// Assert
+	assert.IsType(t, &WaggyRouter{}, w)
+	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
+	assert.Equal(t, 0, len(w.router))
+	assert.True(t, w.fullCGI)
+}
+
+func TestInitRouter_Flg_NotParsable(t *testing.T) {
+	// Act
+	var flg FullCGI = "adsf"
+	w := InitRouter(&flg)
+
+	// Assert
+	assert.IsType(t, &WaggyRouter{}, w)
+	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
+	assert.Equal(t, 0, len(w.router))
+	assert.False(t, w.fullCGI)
+}
+
 func TestWaggyRouter_Handle(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil)
@@ -113,6 +137,68 @@ func TestWaggyRouter_Logger_Default(t *testing.T) {
 	assert.Equal(t, "", l.err)
 	assert.Equal(t, 0, len(l.vals))
 	assert.Equal(t, os.Stderr, l.log)
+}
+
+func TestWaggyRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
+	// Arrange
+	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Goodbye)
+	}
+
+	wr := InitRouter(nil).WithNoRouteHandler(goodbyeHandler)
+
+	helloHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Hello)
+	}
+
+	wh := InitHandler(nil).
+		MethodHandler(http.MethodGet, helloHandler)
+
+	wr.Handle(resources.TestRoute, wh)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	rr := httptest.NewRecorder()
+
+	// Act
+	wr.ServeHTTP(rr, r)
+
+	// Assert
+	assert.IsType(t, &WaggyRouter{}, wr)
+	assert.Equal(t, http.StatusMethodNotAllowed, rr.Code)
+	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
+}
+
+func TestWaggyRouter_ServeHTTP_BaseRoute(t *testing.T) {
+	// Arrange
+	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Goodbye)
+	}
+
+	wr := InitRouter(nil)
+
+	helloHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Hello)
+	}
+
+	wh := InitHandler(nil).
+		MethodHandler(http.MethodGet, helloHandler)
+
+	wh2 := InitHandler(nil).MethodHandler(http.MethodGet, goodbyeHandler)
+
+	wr.Handle(resources.TestRoute, wh).Handle("/", wh2)
+
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	rr := httptest.NewRecorder()
+
+	// Act
+	wr.ServeHTTP(rr, r)
+
+	// Assert
+	assert.IsType(t, &WaggyRouter{}, wr)
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
 }
 
 func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {

@@ -113,7 +113,9 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if rRoute == "" || rRoute == "/" {
 		if handler, ok := wr.router["/"]; !ok {
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			wr.noRouteResponse(w, r)
+			return
 		} else {
 			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
 
