@@ -27,12 +27,12 @@ type WaggyHandler struct {
 	logger               *Logger
 	parentLogger         *Logger
 	parentLoggerOverride bool
-	fullCGI              bool
+	FullServer           bool
 }
 
 // InitHandler initialized a new WaggyHandler and returns
 // a pointer to it
-func InitHandler(cgi *FullCGI) *WaggyHandler {
+func InitHandler(cgi *FullServer) *WaggyHandler {
 	var o bool
 	var err error
 
@@ -53,7 +53,7 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 		restrictedMethods: make(map[string]struct{}),
 		logger:            nil,
 		parentLogger:      nil,
-		fullCGI:           o,
+		FullServer:        o,
 	}
 
 	return &w
@@ -62,7 +62,7 @@ func InitHandler(cgi *FullCGI) *WaggyHandler {
 // InitHandlerWithRoute initialized a new WaggyHandler with the provided
 // route and returns a pointer to it. It is intended to be used whenever
 // only compiling an individual *WaggyHandler instead of a full *WaggyRouter
-func InitHandlerWithRoute(route string, cgi *FullCGI) *WaggyHandler {
+func InitHandlerWithRoute(route string, cgi *FullServer) *WaggyHandler {
 	if route[:1] == "/" {
 		route = route[1:]
 	}
@@ -84,7 +84,7 @@ func InitHandlerWithRoute(route string, cgi *FullCGI) *WaggyHandler {
 		handlerMap:     make(map[string]http.HandlerFunc),
 		logger:         nil,
 		parentLogger:   nil,
-		fullCGI:        o,
+		FullServer:     o,
 	}
 
 	return &w
@@ -101,6 +101,13 @@ func (wh *WaggyHandler) Logger() *Logger {
 		return wh.logger
 	}
 	return wh.parentLogger
+}
+
+// Route returns the route currently set for wh. It is a convenience
+// function that greatly eases looping over WaggyHandlers and adding
+// them to a WaggyRouter
+func (wh *WaggyHandler) Route() string {
+	return wh.route
 }
 
 // WithLogger allows you to set a logger for wh
@@ -136,8 +143,8 @@ func (wh *WaggyHandler) inheritLogger(lp *Logger) {
 	wh.parentLogger = lp
 }
 
-func (wh *WaggyHandler) inheritFullCgiFlag(cgi bool) {
-	wh.fullCGI = cgi
+func (wh *WaggyHandler) inheritFullServerFlag(cgi bool) {
+	wh.FullServer = cgi
 }
 
 // WithDefaultResponse allows you to set a default response for
@@ -287,7 +294,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	qp := strings.Split(q, "&")
 
-	if !wh.fullCGI {
+	if !wh.FullServer {
 		qp = os.Args[1:]
 	}
 

@@ -23,26 +23,26 @@ func TestInitRouter(t *testing.T) {
 
 func TestInitRouter_Flg_Parsable(t *testing.T) {
 	// Act
-	var flg FullCGI = "1"
+	var flg FullServer = "1"
 	w := InitRouter(&flg)
 
 	// Assert
 	assert.IsType(t, &WaggyRouter{}, w)
 	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
 	assert.Equal(t, 0, len(w.router))
-	assert.True(t, w.fullCGI)
+	assert.True(t, w.FullServer)
 }
 
 func TestInitRouter_Flg_NotParsable(t *testing.T) {
 	// Act
-	var flg FullCGI = "adsf"
+	var flg FullServer = "adsf"
 	w := InitRouter(&flg)
 
 	// Assert
 	assert.IsType(t, &WaggyRouter{}, w)
 	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
 	assert.Equal(t, 0, len(w.router))
-	assert.False(t, w.fullCGI)
+	assert.False(t, w.FullServer)
 }
 
 func TestWaggyRouter_Handle(t *testing.T) {

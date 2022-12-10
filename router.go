@@ -21,12 +21,12 @@ type WaggyRouter struct {
 	router      map[string]*WaggyHandler
 	noRoute     WaggyError
 	noRouteFunc http.HandlerFunc
-	fullCGI     bool
+	FullServer  bool
 }
 
 // InitRouter initializes a new WaggyRouter and returns a pointer
 // to it
-func InitRouter(cgi *FullCGI) *WaggyRouter {
+func InitRouter(cgi *FullServer) *WaggyRouter {
 	var o bool
 	var err error
 
@@ -46,7 +46,7 @@ func InitRouter(cgi *FullCGI) *WaggyRouter {
 			Status:   404,
 			Instance: "/",
 		},
-		fullCGI: o,
+		FullServer: o,
 	}
 
 	return &r
@@ -59,7 +59,7 @@ func InitRouter(cgi *FullCGI) *WaggyRouter {
 func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) *WaggyRouter {
 	handler.route = route
 	handler.inheritLogger(wr.logger)
-	handler.inheritFullCgiFlag(wr.fullCGI)
+	handler.inheritFullServerFlag(wr.FullServer)
 	wr.router[route] = handler
 
 	return wr
