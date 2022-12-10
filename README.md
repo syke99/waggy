@@ -46,7 +46,7 @@ import "github.com/syke99/waggy"
 
 ### Basic usage
 
-Examples of using both WaggyRouters and WaggyHandlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy-examples) repo.
+Examples of using both Routers and Handlers for compiling WASM modules for WAGI can be found in the [examples](https://github.com/syke99/waggy-examples) repo.
 
 
 
