@@ -110,6 +110,14 @@ func (wh *Handler) Route() string {
 	return fmt.Sprintf("/%s", wh.route)
 }
 
+// UpdateRoute allows you to update the Handler's route
+func (wh *Handler) UpdateRoute(route string) {
+	if len(route) >= 1 && route[:1] == "/" {
+		route = route[1:]
+	}
+	wh.route = route
+}
+
 // Methods returns all HTTP methods that currently have a handler
 // set
 func (wh *Handler) Methods() []string {
