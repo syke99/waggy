@@ -103,6 +103,13 @@ func (wh *WaggyHandler) Logger() *Logger {
 	return wh.parentLogger
 }
 
+// Route returns the route currently set for wh. It is a convenience
+// function that greatly eases looping over WaggyHandlers and adding
+// them to a WaggyRouter
+func (wh *WaggyHandler) Route() string {
+	return wh.route
+}
+
 // WithLogger allows you to set a logger for wh
 func (wh *WaggyHandler) WithLogger(logger *Logger, parentOverride ParentLoggerOverrider) *WaggyHandler {
 	wh.logger = logger
