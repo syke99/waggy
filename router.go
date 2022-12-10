@@ -3,6 +3,7 @@ package waggy
 import (
 	"context"
 	"fmt"
+	"github.com/syke99/waggy/internal/json"
 	"net/http"
 	"os"
 	"strconv"
@@ -206,56 +207,5 @@ func (wr *WaggyRouter) noRouteResponse(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNotFound)
 	w.Header().Set("Content-Type", "application/problem+json")
-	fmt.Fprintln(w, wr.buildErrorJSON())
-}
-
-func (wr *WaggyRouter) buildErrorJSON() string {
-
-	errStr := "{"
-
-	if wr.noRoute.Type != "" {
-		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\"", errStr, wr.noRoute.Type)
-	}
-
-	if wr.noRoute.Title != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\"", errStr, wr.noRoute.Title)
-	}
-
-	if wr.noRoute.Detail != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\"", errStr, wr.noRoute.Detail)
-	}
-
-	if wr.noRoute.Status != 0 {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\"", errStr, wr.noRoute.Status)
-	}
-
-	if wr.noRoute.Instance != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\"", errStr, wr.noRoute.Instance)
-	}
-
-	if wr.noRoute.Field != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wr.noRoute.Field)
-	}
-
-	return fmt.Sprintf("%[1]s }", errStr)
+	fmt.Fprintln(w, json.BuildJSONStringFromWaggyError(wr.noRoute.Type, wr.noRoute.Title, wr.noRoute.Detail, wr.noRoute.Status, wr.noRoute.Instance, wr.noRoute.Field))
 }
