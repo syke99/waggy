@@ -63,7 +63,7 @@ func InitHandler(cgi *FullServer) *Handler {
 // route and returns a pointer to it. It is intended to be used whenever
 // only compiling an individual *Handler instead of a full *Router
 func InitHandlerWithRoute(route string, cgi *FullServer) *Handler {
-	if route[:1] == "/" {
+	if len(route) >= 1 && route[:1] == "/" {
 		route = route[1:]
 	}
 	var o bool
