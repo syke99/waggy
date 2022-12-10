@@ -3,6 +3,7 @@ package waggy
 import (
 	"context"
 	"fmt"
+	"github.com/syke99/waggy/internal/json"
 	"net/http"
 	"net/url"
 	"os"
@@ -204,61 +205,6 @@ func (wh *WaggyHandler) WithRestrictedMethodHandler(fn http.HandlerFunc) *WaggyH
 	return wh
 }
 
-func (wh *WaggyHandler) buildErrorJSON() string {
-
-	errStr := "{"
-
-	if wh.defErrResp.Type != "" {
-		errStr = fmt.Sprintf("%[1]s \"type\": \"%[2]s\",", errStr, wh.defErrResp.Type)
-	}
-
-	if wh.defErrResp.Title != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"title\": \"%[2]s\",", errStr, wh.defErrResp.Title)
-	}
-
-	if wh.defErrResp.Detail != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"detail\": \"%[2]s\",", errStr, wh.defErrResp.Detail)
-	}
-
-	if wh.defErrResp.Status != 0 {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"status\": \"%[2]d\",", errStr, wh.defErrResp.Status)
-	}
-
-	if wh.defErrResp.Instance != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"instance\": \"%[2]s\",", errStr, wh.defErrResp.Instance)
-	}
-
-	if wh.defErrResp.Field != "" {
-		if errStr[:1] != "{" {
-			errStr = fmt.Sprintf("%[1]s,", errStr)
-		}
-
-		errStr = fmt.Sprintf("%[1]s \"field\": \"%[2]s\"", errStr, wh.defErrResp.Field)
-	}
-
-	if errStr[len(errStr)-1:] == "," {
-		errStr = errStr[:len(errStr)-1]
-	}
-
-	return fmt.Sprintf("%[1]s }", errStr)
-}
-
 // ServeHTTP serves the route
 func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if _, ok := wh.restrictedMethods[r.Method]; ok {
@@ -281,7 +227,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		w.Header().Set("Content-Type", "application/problem+json")
-		fmt.Fprintln(w, wh.buildErrorJSON())
+		fmt.Fprintln(w, json.BuildJSONStringFromWaggyError(wh.defErrResp.Type, wh.defErrResp.Title, wh.defErrResp.Detail, wh.defErrResp.Status, wh.defErrResp.Instance, wh.defErrResp.Field))
 		return
 	}
 
@@ -373,7 +319,7 @@ func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/problem+json")
 
 		ctx = context.WithValue(ctx, resources.DefErr, func(w http.ResponseWriter) {
-			fmt.Fprintln(w, wh.buildErrorJSON())
+			fmt.Fprintln(w, json.BuildJSONStringFromWaggyError(wh.defErrResp.Type, wh.defErrResp.Title, wh.defErrResp.Detail, wh.defErrResp.Status, wh.defErrResp.Instance, wh.defErrResp.Field))
 		})
 	}
 

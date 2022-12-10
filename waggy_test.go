@@ -2,6 +2,7 @@ package waggy
 
 import (
 	"fmt"
+	"github.com/syke99/waggy/internal/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -177,13 +178,13 @@ func TestWriteDefaultResponse(t *testing.T) {
 
 func TestWriteDefaultErrorResponse(t *testing.T) {
 	// Arrange
-
 	testErr := WaggyError{
 		Type:   resources.TestRoute,
 		Title:  "",
 		Detail: resources.TestError.Error(),
 		Status: 0,
 	}
+	expectedResult := fmt.Sprintf("%s\n", json.BuildJSONStringFromWaggyError(testErr.Type, "", testErr.Detail, 0, "", ""))
 
 	defRespHandler := func(w http.ResponseWriter, r *http.Request) {
 		WriteDefaultErrorResponse(w, r)
@@ -197,13 +198,11 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 
 	wr := httptest.NewRecorder()
 
-	handler.buildErrorJSON()
-
 	// Act
 	handler.ServeHTTP(wr, r)
 
 	// Assert
-	assert.Equal(t, fmt.Sprintf("%s\n", handler.buildErrorJSON()), wr.Body.String())
+	assert.Equal(t, expectedResult, wr.Body.String())
 }
 
 func TestServeFile(t *testing.T) {
