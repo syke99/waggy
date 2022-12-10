@@ -12,21 +12,21 @@ import (
 	"github.com/syke99/waggy/internal/resources"
 )
 
-// WaggyRouter is used for routing incoming HTTP requests to
-// specific *WaggyHandlers by the route provided whenever you call
-// Handle on the return router and provide a route for the *WaggyHandler
+// Router is used for routing incoming HTTP requests to
+// specific *Handlers by the route provided whenever you call
+// Handle on the return router and provide a route for the *Handler
 // you provide
-type WaggyRouter struct {
+type Router struct {
 	logger      *Logger
-	router      map[string]*WaggyHandler
+	router      map[string]*Handler
 	noRoute     WaggyError
 	noRouteFunc http.HandlerFunc
 	FullServer  bool
 }
 
-// InitRouter initializes a new WaggyRouter and returns a pointer
+// InitRouter initializes a new Router and returns a pointer
 // to it
-func InitRouter(cgi *FullServer) *WaggyRouter {
+func InitRouter(cgi *FullServer) *Router {
 	var o bool
 	var err error
 
@@ -37,9 +37,9 @@ func InitRouter(cgi *FullServer) *WaggyRouter {
 		}
 	}
 
-	r := WaggyRouter{
+	r := Router{
 		logger: nil,
-		router: make(map[string]*WaggyHandler),
+		router: make(map[string]*Handler),
 		noRoute: WaggyError{
 			Title:    "Resource not found",
 			Detail:   "route not found",
@@ -52,11 +52,11 @@ func InitRouter(cgi *FullServer) *WaggyRouter {
 	return &r
 }
 
-// Handle allows you to map a *WaggyHandler for a specific route. Just
+// Handle allows you to map a *Handler for a specific route. Just
 // in the popular gorilla/mux router, you can specify path parameters
 // by wrapping them with {} and they can later be accessed by calling
 // Vars(r)
-func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) *WaggyRouter {
+func (wr *Router) Handle(route string, handler *Handler) *Router {
 	handler.route = route
 	handler.inheritLogger(wr.logger)
 	handler.inheritFullServerFlag(wr.FullServer)
@@ -66,16 +66,16 @@ func (wr *WaggyRouter) Handle(route string, handler *WaggyHandler) *WaggyRouter 
 }
 
 // WithLogger allows you to set a Logger for the entire router. Whenever
-// Handle is called, this logger will be passed to the *WaggyHandler
+// Handle is called, this logger will be passed to the *Handler
 // being handled for the given route.
-func (wr *WaggyRouter) WithLogger(logger *Logger) *WaggyRouter {
+func (wr *Router) WithLogger(logger *Logger) *Router {
 	wr.logger = logger
 
 	return wr
 }
 
 // WithDefaultLogger sets wr's logger to the default Logger
-func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
+func (wr *Router) WithDefaultLogger() *Router {
 	l := Logger{
 		logLevel: Info.level(),
 		key:      "",
@@ -93,20 +93,20 @@ func (wr *WaggyRouter) WithDefaultLogger() *WaggyRouter {
 // WithNoRouteHandler allows you to set an http.HandlerFunc to be used whenever
 // no route is found. If this method is not called and the ServeHTTP method
 // has been called, then it will return a generic 404 response, instead
-func (wr *WaggyRouter) WithNoRouteHandler(fn http.HandlerFunc) *WaggyRouter {
+func (wr *Router) WithNoRouteHandler(fn http.HandlerFunc) *Router {
 	wr.noRouteFunc = fn
 
 	return wr
 }
 
-// Logger returns the WaggyRouter's logger
-func (wr *WaggyRouter) Logger() *Logger {
+// Logger returns the Router's logger
+func (wr *Router) Logger() *Logger {
 	return wr.logger
 }
 
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
-func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rt := ""
 
 	r.URL.Opaque = ""
@@ -199,7 +199,7 @@ func (wr *WaggyRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func (wr *WaggyRouter) noRouteResponse(w http.ResponseWriter, r *http.Request) {
+func (wr *Router) noRouteResponse(w http.ResponseWriter, r *http.Request) {
 	if wr.noRouteFunc != nil {
 		wr.noRouteFunc(w, r)
 		return

@@ -14,10 +14,10 @@ import (
 type FullServer string
 
 // WaggyEntryPoint is used as a type constraint whenever calling
-// Serve so that only a *WaggyRouter or *WaggyHandler can
+// Serve so that only a *Router or *Handler can
 // be used and not a bare http.Handler
 type WaggyEntryPoint interface {
-	*WaggyRouter | *WaggyHandler
+	*Router | *Handler
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
@@ -72,7 +72,7 @@ func Vars(r *http.Request) map[string]string {
 }
 
 // Serve wraps a call to cgi.serve and also uses a type constraint of
-// WaggyEntryPoint so that only a *WaggyRouter or *WaggyHandler can be
+// WaggyEntryPoint so that only a *Router or *Handler can be
 // used in the call to Serve and not accidentally allow calling
 // a bare http.Handler
 func Serve[W WaggyEntryPoint](entryPoint W) error {

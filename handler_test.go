@@ -24,7 +24,7 @@ func TestInitHandler(t *testing.T) {
 	w := InitHandler(nil)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, "", w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
@@ -37,7 +37,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
@@ -45,7 +45,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
 }
 
-func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
+func TestHandler_WithDefaultResponse(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 
@@ -53,7 +53,7 @@ func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, "", w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
@@ -62,7 +62,7 @@ func TestWaggyHandler_WithDefaultResponse(t *testing.T) {
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
 }
 
-func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
+func TestHandler_WithDefaultErrorResponse(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 	testErr := WaggyError{
@@ -76,7 +76,7 @@ func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
 	w.WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, "", w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
@@ -88,7 +88,7 @@ func TestWaggyHandler_WithDefaultErrorResponse(t *testing.T) {
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
 }
 
-func TestWaggyHandler_MethodHandler(t *testing.T) {
+func TestHandler_MethodHandler(t *testing.T) {
 	// Arrange
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -103,7 +103,7 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	w.MethodHandler(http.MethodDelete, goodbyeHandler)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, "", w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, 0, len(w.defResp))
@@ -120,7 +120,7 @@ func TestWaggyHandler_MethodHandler(t *testing.T) {
 	}
 }
 
-func TestWaggyHandler_RestrictMethods(t *testing.T) {
+func TestHandler_RestrictMethods(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 
@@ -142,7 +142,7 @@ func TestWaggyHandler_RestrictMethods(t *testing.T) {
 	}
 }
 
-func TestWaggyHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
+func TestHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 	test := "this isn't an http method"
@@ -157,7 +157,7 @@ func TestWaggyHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestWaggyHandler_WithRestrictedMethodHandler(t *testing.T) {
+func TestHandler_WithRestrictedMethodHandler(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 	testHandler := func(w http.ResponseWriter, r *http.Request) {}
@@ -169,7 +169,7 @@ func TestWaggyHandler_WithRestrictedMethodHandler(t *testing.T) {
 	assert.NotNil(t, w.restrictedMethodFunc)
 }
 
-func TestWaggyHandler_WithRestrictedMethodHandler_NoHandler(t *testing.T) {
+func TestHandler_WithRestrictedMethodHandler_NoHandler(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 
@@ -180,7 +180,7 @@ func TestWaggyHandler_WithRestrictedMethodHandler_NoHandler(t *testing.T) {
 	assert.Nil(t, w.restrictedMethodFunc)
 }
 
-func TestWaggyHandler_WithLogger(t *testing.T) {
+func TestHandler_WithLogger(t *testing.T) {
 	// Arrange
 	testLog := resources.TestLogFile
 	testLogLevel := Info
@@ -201,7 +201,7 @@ func TestWaggyHandler_WithLogger(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, w.logger.log)
 }
 
-func TestWaggyHandler_WithLogger_ParentOverride(t *testing.T) {
+func TestHandler_WithLogger_ParentOverride(t *testing.T) {
 	// Assert
 	r := InitRouter(nil).
 		WithDefaultLogger()
@@ -227,7 +227,7 @@ func TestWaggyHandler_WithLogger_ParentOverride(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, w.logger.log)
 }
 
-func TestWaggyHandler_WithDefaultLogger(t *testing.T) {
+func TestHandler_WithDefaultLogger(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil)
 
@@ -244,7 +244,7 @@ func TestWaggyHandler_WithDefaultLogger(t *testing.T) {
 	assert.Equal(t, os.Stderr, w.logger.log)
 }
 
-func TestWaggyHandler_Logger(t *testing.T) {
+func TestHandler_Logger(t *testing.T) {
 	// Arrange
 	testLog := resources.TestLogFile
 	testLogLevel := Info
@@ -266,7 +266,7 @@ func TestWaggyHandler_Logger(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, l.log)
 }
 
-func TestWaggyHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
+func TestHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 	// Assert
 	r := InitRouter(nil).
 		WithDefaultLogger()
@@ -294,7 +294,7 @@ func TestWaggyHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 	assert.Equal(t, os.Stderr, l.log)
 }
 
-func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
+func TestHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	// Assert
 	r := InitRouter(nil).
 		WithDefaultLogger()
@@ -322,7 +322,7 @@ func TestWaggyHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, l.log)
 }
 
-func TestWaggyHandler_ServeHTTP_RestrictedMethod_NoHandler(t *testing.T) {
+func TestHandler_ServeHTTP_RestrictedMethod_NoHandler(t *testing.T) {
 	// Arrange
 	w := InitHandler(nil).
 		RestrictMethods(http.MethodGet)
@@ -339,7 +339,7 @@ func TestWaggyHandler_ServeHTTP_RestrictedMethod_NoHandler(t *testing.T) {
 	assert.Equal(t, resources.TestMethodNotAllowed, wr.Body.String())
 }
 
-func TestWaggyHandler_ServeHTTP_RestrictedMethod_Handler(t *testing.T) {
+func TestHandler_ServeHTTP_RestrictedMethod_Handler(t *testing.T) {
 	// Arrange
 	noRouteHandler := func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -362,7 +362,7 @@ func TestWaggyHandler_ServeHTTP_RestrictedMethod_Handler(t *testing.T) {
 	assert.Equal(t, resources.TestMethodNotAllowedHandlerResp, wr.Body.String())
 }
 
-func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
+func TestHandler_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -396,7 +396,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	w.ServeHTTP(wr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))
@@ -419,7 +419,7 @@ func TestWaggyHandler_ServeHTTP_MethodGet(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Hello), wr.Body.String())
 }
 
-func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
+func TestHandler_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
@@ -453,7 +453,7 @@ func TestWaggyHandler_ServeHTTP_MethodDelete(t *testing.T) {
 	w.ServeHTTP(wr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w)
+	assert.IsType(t, &Handler{}, w)
 	assert.Equal(t, resources.TestRoute[1:], w.route)
 	assert.IsType(t, []byte{}, w.defResp)
 	assert.Equal(t, len(resources.HelloWorld), len(w.defResp))

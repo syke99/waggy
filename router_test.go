@@ -16,8 +16,8 @@ func TestInitRouter(t *testing.T) {
 	w := InitRouter(nil)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, w)
-	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
+	assert.IsType(t, &Router{}, w)
+	assert.IsType(t, map[string]*Handler{}, w.router)
 	assert.Equal(t, 0, len(w.router))
 }
 
@@ -27,8 +27,8 @@ func TestInitRouter_Flg_Parsable(t *testing.T) {
 	w := InitRouter(&flg)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, w)
-	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
+	assert.IsType(t, &Router{}, w)
+	assert.IsType(t, map[string]*Handler{}, w.router)
 	assert.Equal(t, 0, len(w.router))
 	assert.True(t, w.FullServer)
 }
@@ -39,13 +39,13 @@ func TestInitRouter_Flg_NotParsable(t *testing.T) {
 	w := InitRouter(&flg)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, w)
-	assert.IsType(t, map[string]*WaggyHandler{}, w.router)
+	assert.IsType(t, &Router{}, w)
+	assert.IsType(t, map[string]*Handler{}, w.router)
 	assert.Equal(t, 0, len(w.router))
 	assert.False(t, w.FullServer)
 }
 
-func TestWaggyRouter_Handle(t *testing.T) {
+func TestRouter_Handle(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil)
 
@@ -57,11 +57,11 @@ func TestWaggyRouter_Handle(t *testing.T) {
 	w.Handle("/goodbye", goodbyeHandler)
 
 	// Assert
-	assert.IsType(t, &WaggyHandler{}, w.router["/hello"])
-	assert.IsType(t, &WaggyHandler{}, w.router["/goodbye"])
+	assert.IsType(t, &Handler{}, w.router["/hello"])
+	assert.IsType(t, &Handler{}, w.router["/goodbye"])
 }
 
-func TestWaggyRouter_WithLogger(t *testing.T) {
+func TestRouter_WithLogger(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil)
 
@@ -82,7 +82,7 @@ func TestWaggyRouter_WithLogger(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, w.logger.log)
 }
 
-func TestWaggyRouter_WithDefaultLogger(t *testing.T) {
+func TestRouter_WithDefaultLogger(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil)
 
@@ -99,7 +99,7 @@ func TestWaggyRouter_WithDefaultLogger(t *testing.T) {
 	assert.Equal(t, os.Stderr, w.logger.log)
 }
 
-func TestWaggyRouter_Logger(t *testing.T) {
+func TestRouter_Logger(t *testing.T) {
 	// Arrange
 	testLog := resources.TestLogFile
 	testLogLevel := Info
@@ -121,7 +121,7 @@ func TestWaggyRouter_Logger(t *testing.T) {
 	assert.Equal(t, resources.TestLogFile, l.log)
 }
 
-func TestWaggyRouter_Logger_Default(t *testing.T) {
+func TestRouter_Logger_Default(t *testing.T) {
 	// Arrange
 	w := InitRouter(nil).
 		WithDefaultLogger()
@@ -139,7 +139,7 @@ func TestWaggyRouter_Logger_Default(t *testing.T) {
 	assert.Equal(t, os.Stderr, l.log)
 }
 
-func TestWaggyRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
+func TestRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
 	// Arrange
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
@@ -164,12 +164,12 @@ func TestWaggyRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
 	wr.ServeHTTP(rr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, wr)
+	assert.IsType(t, &Router{}, wr)
 	assert.Equal(t, http.StatusMethodNotAllowed, rr.Code)
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
 }
 
-func TestWaggyRouter_ServeHTTP_BaseRoute(t *testing.T) {
+func TestRouter_ServeHTTP_BaseRoute(t *testing.T) {
 	// Arrange
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
@@ -196,12 +196,12 @@ func TestWaggyRouter_ServeHTTP_BaseRoute(t *testing.T) {
 	wr.ServeHTTP(rr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, wr)
+	assert.IsType(t, &Router{}, wr)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
 }
 
-func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
+func TestRouter_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
 	wr := InitRouter(nil)
 
@@ -222,12 +222,12 @@ func TestWaggyRouter_ServeHTTP_MethodGet(t *testing.T) {
 	wr.ServeHTTP(rr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, wr)
-	assert.IsType(t, &WaggyHandler{}, wr.router[resources.TestRoute])
+	assert.IsType(t, &Router{}, wr)
+	assert.IsType(t, &Handler{}, wr.router[resources.TestRoute])
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Hello), rr.Body.String())
 }
 
-func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
+func TestRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
 	wr := InitRouter(nil)
 
@@ -248,7 +248,7 @@ func TestWaggyRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	wr.ServeHTTP(rr, r)
 
 	// Assert
-	assert.IsType(t, &WaggyRouter{}, wr)
-	assert.IsType(t, &WaggyHandler{}, wr.router[resources.TestRoute])
+	assert.IsType(t, &Router{}, wr)
+	assert.IsType(t, &Handler{}, wr.router[resources.TestRoute])
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
 }

@@ -13,9 +13,9 @@ import (
 	"github.com/syke99/waggy/internal/resources"
 )
 
-// WaggyHandler is used to handling various http.HandlerFuncs
+// Handler is used to handling various http.HandlerFuncs
 // mapped by HTTP methods for an individual route
-type WaggyHandler struct {
+type Handler struct {
 	route                string
 	defResp              []byte
 	defRespContType      string
@@ -30,9 +30,9 @@ type WaggyHandler struct {
 	FullServer           bool
 }
 
-// InitHandler initialized a new WaggyHandler and returns
+// InitHandler initialized a new Handler and returns
 // a pointer to it
-func InitHandler(cgi *FullServer) *WaggyHandler {
+func InitHandler(cgi *FullServer) *Handler {
 	var o bool
 	var err error
 
@@ -43,7 +43,7 @@ func InitHandler(cgi *FullServer) *WaggyHandler {
 		}
 	}
 
-	w := WaggyHandler{
+	w := Handler{
 		route:             "",
 		defResp:           make([]byte, 0),
 		defRespContType:   "",
@@ -59,10 +59,10 @@ func InitHandler(cgi *FullServer) *WaggyHandler {
 	return &w
 }
 
-// InitHandlerWithRoute initialized a new WaggyHandler with the provided
+// InitHandlerWithRoute initialized a new Handler with the provided
 // route and returns a pointer to it. It is intended to be used whenever
-// only compiling an individual *WaggyHandler instead of a full *WaggyRouter
-func InitHandlerWithRoute(route string, cgi *FullServer) *WaggyHandler {
+// only compiling an individual *Handler instead of a full *Router
+func InitHandlerWithRoute(route string, cgi *FullServer) *Handler {
 	if route[:1] == "/" {
 		route = route[1:]
 	}
@@ -76,7 +76,7 @@ func InitHandlerWithRoute(route string, cgi *FullServer) *WaggyHandler {
 		}
 	}
 
-	w := WaggyHandler{
+	w := Handler{
 		route:          route,
 		defResp:        make([]byte, 0),
 		defErrResp:     WaggyError{},
@@ -90,12 +90,12 @@ func InitHandlerWithRoute(route string, cgi *FullServer) *WaggyHandler {
 	return &w
 }
 
-// Logger returns the WaggyHandler's Logger. If no parent logger is
-// inherited from a WaggyRouter, or you provided a OverrideParentLogger
-// whenever adding a Logger to the WaggyHandler, then the WaggyHandler's
+// Logger returns the Handler's Logger. If no parent logger is
+// inherited from a Router, or you provided a OverrideParentLogger
+// whenever adding a Logger to the Handler, then the Handler's
 // Logger will be returned. If no logger has been set, then this method
 // will return nil
-func (wh *WaggyHandler) Logger() *Logger {
+func (wh *Handler) Logger() *Logger {
 	if wh.parentLogger == nil ||
 		(wh.logger != nil && wh.parentLoggerOverride) {
 		return wh.logger
@@ -104,14 +104,26 @@ func (wh *WaggyHandler) Logger() *Logger {
 }
 
 // Route returns the route currently set for wh. It is a convenience
-// function that greatly eases looping over WaggyHandlers and adding
-// them to a WaggyRouter
-func (wh *WaggyHandler) Route() string {
+// function that greatly eases looping over Handlers and adding
+// them to a Router
+func (wh *Handler) Route() string {
 	return wh.route
 }
 
+// Methods returns all HTTP methods that currently have a handler
+// set
+func (wh *Handler) Methods() []string {
+	methods := make([]string, 0)
+
+	for k, _ := range wh.handlerMap {
+		methods = append(methods, k)
+	}
+
+	return methods
+}
+
 // WithLogger allows you to set a logger for wh
-func (wh *WaggyHandler) WithLogger(logger *Logger, parentOverride ParentLoggerOverrider) *WaggyHandler {
+func (wh *Handler) WithLogger(logger *Logger, parentOverride ParentLoggerOverrider) *Handler {
 	wh.logger = logger
 	if parentOverride == nil {
 		wh.parentLoggerOverride = false
@@ -124,7 +136,7 @@ func (wh *WaggyHandler) WithLogger(logger *Logger, parentOverride ParentLoggerOv
 }
 
 // WithDefaultLogger sets wh's logger to the default Logger
-func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
+func (wh *Handler) WithDefaultLogger() *Handler {
 	l := Logger{
 		logLevel: Info.level(),
 		key:      "",
@@ -139,17 +151,17 @@ func (wh *WaggyHandler) WithDefaultLogger() *WaggyHandler {
 	return wh
 }
 
-func (wh *WaggyHandler) inheritLogger(lp *Logger) {
+func (wh *Handler) inheritLogger(lp *Logger) {
 	wh.parentLogger = lp
 }
 
-func (wh *WaggyHandler) inheritFullServerFlag(cgi bool) {
+func (wh *Handler) inheritFullServerFlag(cgi bool) {
 	wh.FullServer = cgi
 }
 
 // WithDefaultResponse allows you to set a default response for
 // individual handlers
-func (wh *WaggyHandler) WithDefaultResponse(contentType string, body []byte) *WaggyHandler {
+func (wh *Handler) WithDefaultResponse(contentType string, body []byte) *Handler {
 	wh.defResp = body
 	wh.defRespContType = contentType
 
@@ -158,7 +170,7 @@ func (wh *WaggyHandler) WithDefaultResponse(contentType string, body []byte) *Wa
 
 // WithDefaultErrorResponse allows you to set a default error response for
 // individual handlers
-func (wh *WaggyHandler) WithDefaultErrorResponse(err WaggyError, statusCode int) *WaggyHandler {
+func (wh *Handler) WithDefaultErrorResponse(err WaggyError, statusCode int) *Handler {
 	wh.defErrResp = err
 	wh.defErrRespCode = statusCode
 
@@ -173,7 +185,7 @@ var AllHTTPMethods = func() string {
 
 // MethodHandler allows you to map a different handler to each HTTP Method
 // for a single route.
-func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *WaggyHandler {
+func (wh *Handler) MethodHandler(method string, handler http.HandlerFunc) *Handler {
 	if _, ok := resources.AllHTTPMethods()[method]; !ok {
 		return wh
 	}
@@ -191,7 +203,7 @@ func (wh *WaggyHandler) MethodHandler(method string, handler http.HandlerFunc) *
 
 // RestrictMethods is a variadic function for restricting a handler from being able
 // to be executed on the given methods
-func (wh *WaggyHandler) RestrictMethods(methods ...string) *WaggyHandler {
+func (wh *Handler) RestrictMethods(methods ...string) *Handler {
 	for _, method := range methods {
 		if _, ok := resources.AllHTTPMethods()[method]; !ok {
 			continue
@@ -206,14 +218,14 @@ func (wh *WaggyHandler) RestrictMethods(methods ...string) *WaggyHandler {
 // whenever a request with a restricted HTTP Method is hit. Whenever ServeHTTP is
 // called, if this method has not been called and a restricted method has been set
 // and is hit by the incoming request, it will return a generic 405 error, instead
-func (wh *WaggyHandler) WithRestrictedMethodHandler(fn http.HandlerFunc) *WaggyHandler {
+func (wh *Handler) WithRestrictedMethodHandler(fn http.HandlerFunc) *Handler {
 	wh.restrictedMethodFunc = fn
 
 	return wh
 }
 
 // ServeHTTP serves the route
-func (wh *WaggyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if _, ok := wh.restrictedMethods[r.Method]; ok {
 		if wh.restrictedMethodFunc != nil {
 			wh.restrictedMethodFunc(w, r)

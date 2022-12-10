@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// ParentLoggerOverrider overrides the parent *Logger in a WaggyHandler
+// ParentLoggerOverrider overrides the parent *Logger in a Handler
 type ParentLoggerOverrider = func() bool
 
 // OverrideParentLogger
