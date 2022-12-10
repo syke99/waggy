@@ -107,7 +107,7 @@ func (wh *Handler) Logger() *Logger {
 // function that greatly eases looping over Handlers and adding
 // them to a Router
 func (wh *Handler) Route() string {
-	return wh.route
+	return fmt.Sprintf("/%s", wh.route)
 }
 
 // Methods returns all HTTP methods that currently have a handler
