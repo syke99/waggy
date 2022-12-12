@@ -65,6 +65,16 @@ func (wr *Router) Handle(route string, handler *Handler) *Router {
 	return wr
 }
 
+func (wr *Router) Routes() []string {
+	r := make([]string, 0)
+
+	for k, _ := range wr.router {
+		r = append(r, k)
+	}
+
+	return r
+}
+
 // WithLogger allows you to set a Logger for the entire router. Whenever
 // Handle is called, this logger will be passed to the *Handler
 // being handled for the given route.
