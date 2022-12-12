@@ -4,11 +4,10 @@ import (
 	"errors"
 	"os"
 	"reflect"
-	"runtime"
 )
 
-func GetFunctionName(i interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+func GetFunctionPtr(i interface{}) uintptr {
+	return reflect.ValueOf(i).Pointer()
 }
 
 const (

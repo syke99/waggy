@@ -113,9 +113,9 @@ func TestHandler_MethodHandler(t *testing.T) {
 	for k, v := range w.handlerMap {
 		switch k {
 		case http.MethodGet:
-			assert.Equal(t, resources.GetFunctionName(helloHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(helloHandler), resources.GetFunctionPtr(v))
 		case http.MethodDelete:
-			assert.Equal(t, resources.GetFunctionName(goodbyeHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(goodbyeHandler), resources.GetFunctionPtr(v))
 		}
 	}
 }
@@ -410,9 +410,9 @@ func TestHandler_ServeHTTP_MethodGet(t *testing.T) {
 	for k, v := range w.handlerMap {
 		switch k {
 		case http.MethodGet:
-			assert.Equal(t, resources.GetFunctionName(helloHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(helloHandler), resources.GetFunctionPtr(v))
 		case http.MethodDelete:
-			assert.Equal(t, resources.GetFunctionName(goodbyeHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(goodbyeHandler), resources.GetFunctionPtr(v))
 		}
 	}
 
@@ -467,9 +467,9 @@ func TestHandler_ServeHTTP_MethodDelete(t *testing.T) {
 	for k, v := range w.handlerMap {
 		switch k {
 		case http.MethodGet:
-			assert.Equal(t, resources.GetFunctionName(helloHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(helloHandler), resources.GetFunctionPtr(v))
 		case http.MethodDelete:
-			assert.Equal(t, resources.GetFunctionName(goodbyeHandler), resources.GetFunctionName(v))
+			assert.Equal(t, resources.GetFunctionPtr(goodbyeHandler), resources.GetFunctionPtr(v))
 		}
 	}
 
