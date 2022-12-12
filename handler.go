@@ -120,11 +120,11 @@ func (wh *Handler) UpdateRoute(route string) {
 
 // Methods returns all HTTP methods that currently have a handler
 // set
-func (wh *Handler) Methods() map[string]struct{} {
-	methods := make(map[string]struct{})
+func (wh *Handler) Methods() []string {
+	methods := make([]string, 0)
 
 	for k, _ := range wh.handlerMap {
-		methods[k] = struct{}{}
+		methods = append(methods, k)
 	}
 
 	return methods
