@@ -77,14 +77,15 @@ func InitHandlerWithRoute(route string, cgi *FullServer) *Handler {
 	}
 
 	w := Handler{
-		route:          route,
-		defResp:        make([]byte, 0),
-		defErrResp:     WaggyError{},
-		defErrRespCode: 0,
-		handlerMap:     make(map[string]http.HandlerFunc),
-		logger:         nil,
-		parentLogger:   nil,
-		FullServer:     o,
+		route:             route,
+		defResp:           make([]byte, 0),
+		defErrResp:        WaggyError{},
+		defErrRespCode:    0,
+		handlerMap:        make(map[string]http.HandlerFunc),
+		restrictedMethods: make(map[string]struct{}),
+		logger:            nil,
+		parentLogger:      nil,
+		FullServer:        o,
 	}
 
 	return &w
@@ -128,6 +129,10 @@ func (wh *Handler) Methods() []string {
 	}
 
 	return methods
+}
+
+func (wh *Handler) Handler(method string) http.HandlerFunc {
+	return wh.handlerMap[method]
 }
 
 // WithLogger allows you to set a logger for wh
