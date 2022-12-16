@@ -4,7 +4,7 @@
 [![Codecov](https://codecov.io/gh/syke99/waggy/branch/main/graph/badge.svg?token=KDYH3JO1QI)](https://codecov.io/gh/syke99/waggy)
 [![LICENSE](https://img.shields.io/github/license/syke99/waggy)](https://pkg.go.dev/github.com/syke99/waggy/blob/master/LICENSE)
 
-The dead simple, easy-to-use library for writing WAGI (Web Assembly Gateway Interface) API handlers in Go
+The dead simple, easy-to-use library for writing HTTP handlers and routers in Go that can be used in standard HTTP server environments or in WAGI (Web Assembly Gateway Interface) environments
 
 What problems do Waggy solve?
 =====
