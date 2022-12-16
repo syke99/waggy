@@ -176,7 +176,7 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// if the route sections don't match and aren't query
 			// params, break out as these are not the correctly matched
 			// routes
-			if splitRoute[i] != section && rt == "" {
+			if i > len(splitRoute) || splitRoute[i] != section && rt == "" {
 				break
 			}
 
