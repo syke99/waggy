@@ -22,7 +22,7 @@ their own WASM modules, too, so you can use the conventional modules.toml file f
 </br>
 
 #### v0.5.0 improvements:
-* **Restricting Methods**: With v0.5.0, you have the ability restrict HTTP methods on your handlers to make sure your endpoints
+* **Restricting Methods**: With v0.5.0, you have the ability to restrict HTTP methods on your handlers to make sure your endpoints
 are more secure 
 
 * **No Matched Routes**: Another added feature in v0.5.0 is handling cases where no routes are matches to the route of the incoming
