@@ -99,8 +99,8 @@ func TestHandler_MethodHandler(t *testing.T) {
 	w := InitHandler(nil)
 
 	// Act
-	w.MethodHandler(http.MethodGet, helloHandler)
-	w.MethodHandler(http.MethodDelete, goodbyeHandler)
+	w.WithMethodHandler(http.MethodGet, helloHandler)
+	w.WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	// Assert
 	assert.IsType(t, &Handler{}, w)
@@ -374,8 +374,8 @@ func TestHandler_ServeHTTP_MethodGet(t *testing.T) {
 
 	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
-	w.MethodHandler(http.MethodGet, helloHandler)
-	w.MethodHandler(http.MethodDelete, goodbyeHandler)
+	w.WithMethodHandler(http.MethodGet, helloHandler)
+	w.WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
@@ -431,8 +431,8 @@ func TestHandler_ServeHTTP_MethodDelete(t *testing.T) {
 
 	w := InitHandlerWithRoute(resources.TestRoute, nil)
 
-	w.MethodHandler(http.MethodGet, helloHandler)
-	w.MethodHandler(http.MethodDelete, goodbyeHandler)
+	w.WithMethodHandler(http.MethodGet, helloHandler)
+	w.WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
 
