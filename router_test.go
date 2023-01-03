@@ -152,7 +152,7 @@ func TestRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
 	}
 
 	wh := InitHandler(nil).
-		MethodHandler(http.MethodGet, helloHandler)
+		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRoute, wh)
 
@@ -182,9 +182,9 @@ func TestRouter_ServeHTTP_BaseRoute(t *testing.T) {
 	}
 
 	wh := InitHandler(nil).
-		MethodHandler(http.MethodGet, helloHandler)
+		WithMethodHandler(http.MethodGet, helloHandler)
 
-	wh2 := InitHandler(nil).MethodHandler(http.MethodGet, goodbyeHandler)
+	wh2 := InitHandler(nil).WithMethodHandler(http.MethodGet, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh).Handle("/", wh2)
 
@@ -210,7 +210,7 @@ func TestRouter_ServeHTTP_MethodGet(t *testing.T) {
 	}
 
 	wh := InitHandler(nil).
-		MethodHandler(http.MethodGet, helloHandler)
+		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRoute, wh)
 
@@ -236,7 +236,7 @@ func TestRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	}
 
 	wh := InitHandler(nil).
-		MethodHandler(http.MethodDelete, goodbyeHandler)
+		WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh)
 

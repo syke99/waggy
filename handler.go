@@ -196,9 +196,9 @@ var AllHTTPMethods = func() string {
 	return "ALL"
 }
 
-// MethodHandler allows you to map a different handler to each HTTP Method
+// WithMethodHandler allows you to map a different handler to each HTTP Method
 // for a single route.
-func (wh *Handler) MethodHandler(method string, handler http.HandlerFunc) *Handler {
+func (wh *Handler) WithMethodHandler(method string, handler http.HandlerFunc) *Handler {
 	if _, ok := resources.AllHTTPMethods()[method]; !ok {
 		return wh
 	}
