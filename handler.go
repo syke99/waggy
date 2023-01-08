@@ -263,7 +263,7 @@ func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(wh.route) != 1 && wh.route[:1] == "/" {
+	if len(wh.route) >= 1 && wh.route[:1] == "/" {
 		wh.route = wh.route[1:]
 	}
 

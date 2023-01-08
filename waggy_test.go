@@ -263,3 +263,13 @@ func TestServe_Handler(t *testing.T) {
 	// Assert
 	assert.Error(t, err)
 }
+
+func TestEmptyRoute(t *testing.T) {
+	handler := InitHandlerWithRoute("/", nil)
+	handler.WithMethodHandler(http.MethodGet, func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprintln(writer, "Don't panic! 🐿️")
+	})
+	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
+	wr := httptest.NewRecorder()
+	handler.ServeHTTP(wr, r)
+}
