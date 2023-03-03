@@ -273,3 +273,18 @@ func TestEmptyRoute(t *testing.T) {
 	wr := httptest.NewRecorder()
 	handler.ServeHTTP(wr, r)
 }
+
+func TestListenAndServe_Router(t *testing.T) { // Act
+	err := ListenAndServe[*Router](resources.TestListenAndServeAddr, nil)
+
+	// Assert
+	assert.Error(t, err)
+}
+
+func TestListenAndServe_Handler(t *testing.T) {
+	// Act
+	err := ListenAndServe[*Handler](resources.TestListenAndServeAddr, nil)
+
+	// Assert
+	assert.Error(t, err)
+}

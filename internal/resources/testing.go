@@ -2,6 +2,7 @@ package resources
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 )
@@ -46,4 +47,5 @@ var (
 
 		return m
 	}
+	TestListenAndServeAddr = fmt.Sprintf("localhost:3000")
 )
