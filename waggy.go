@@ -79,6 +79,16 @@ func Serve[W WaggyEntryPoint](entryPoint W) error {
 	return cgi.Serve(entryPoint)
 }
 
+// ListenAndServe wraps a call to http.ListenAndServe and also uses
+// a type constraint of WaggyEntryPoint so that only a *waggy.Router or
+// *waggy.Handler can be used
+func ListenAndServe[W WaggyEntryPoint](addr string, entryPoint W) error {
+	if entryPoint == nil {
+		return resources.NoWaggyEntryPointProvided
+	}
+	return http.ListenAndServe(addr, entryPoint)
+}
+
 // ServeFile is a convenience function for serving the file at the given filePath to the given
 // http.ResponseWriter (w). If Waggy cannot find a file at the given path (if it doesn't exist
 // or the volume was incorrectly mounted), this function will return a status 404. If any other
