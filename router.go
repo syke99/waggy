@@ -68,11 +68,13 @@ func (wr *Router) Handle(route string, handler *Handler) *Router {
 	return wr
 }
 
+// Routes returns all the routes that a *Router has
+// *Handlers set for in the order that they were added
 func (wr *Router) Routes() []string {
 	r := make([]string, 0)
 
-	for k, _ := range wr.router {
-		r = append(r, k)
+	for i := 0; i <= len(wr.router); i++ {
+		r = append(r, wr.handlerOrder[i])
 	}
 
 	return r
