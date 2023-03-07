@@ -17,11 +17,12 @@ import (
 // Handle on the return router and provide a route for the *Handler
 // you provide
 type Router struct {
-	logger      *Logger
-	router      map[string]*Handler
-	noRoute     WaggyError
-	noRouteFunc http.HandlerFunc
-	FullServer  bool
+	logger       *Logger
+	router       map[string]*Handler
+	handlerOrder map[int]string
+	noRoute      WaggyError
+	noRouteFunc  http.HandlerFunc
+	FullServer   bool
 }
 
 // InitRouter initializes a new Router and returns a pointer
@@ -38,8 +39,9 @@ func InitRouter(cgi *FullServer) *Router {
 	}
 
 	r := Router{
-		logger: nil,
-		router: make(map[string]*Handler),
+		logger:       nil,
+		router:       make(map[string]*Handler),
+		handlerOrder: make(map[int]string),
 		noRoute: WaggyError{
 			Title:    "Resource not found",
 			Detail:   "route not found",
@@ -61,6 +63,7 @@ func (wr *Router) Handle(route string, handler *Handler) *Router {
 	handler.inheritLogger(wr.logger)
 	handler.inheritFullServerFlag(wr.FullServer)
 	wr.router[route] = handler
+	wr.handlerOrder[len(wr.router)] = route
 
 	return wr
 }
@@ -218,4 +221,30 @@ func (wr *Router) noRouteResponse(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	w.Header().Set("Content-Type", "application/problem+json")
 	fmt.Fprintln(w, json.BuildJSONStringFromWaggyError(wr.noRoute.Type, wr.noRoute.Title, wr.noRoute.Detail, wr.noRoute.Status, wr.noRoute.Instance, wr.noRoute.Field))
+}
+
+// Walk accepts a *Router and a walkFunc to execute on each route that has been
+// added to the *Router. It walks the *Router in the order that each
+// *Handler was added to the *Router with *Router.Handle(). It returns the first
+// error encountered
+func (wr *Router) Walk(walkFunc func(method string, route string) error) error {
+	for i := 1; i <= len(wr.router); i++ {
+		route, _ := wr.handlerOrder[i]
+
+		handler := wr.router[route]
+
+		if err := walkMethods(route, handler, walkFunc); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func walkMethods(route string, handler *Handler, walkFunc func(method string, route string) error) error {
+	for _, method := range handler.Methods() {
+		if err := walkFunc(method, route); err != nil {
+			return err
+		}
+	}
+	return nil
 }
