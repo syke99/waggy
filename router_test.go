@@ -252,3 +252,93 @@ func TestRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	assert.IsType(t, &Handler{}, wr.router[resources.TestRoute])
 	assert.Equal(t, fmt.Sprintf("%s\n", resources.Goodbye), rr.Body.String())
 }
+
+func TestRouter_Walk(t *testing.T) {
+	// Arrange
+	wr := InitRouter(nil)
+
+	helloHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Hello)
+	}
+
+	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Goodbye)
+	}
+
+	wh := InitHandler(nil).
+		WithMethodHandler(http.MethodDelete, goodbyeHandler)
+
+	wr.Handle(resources.TestRoute, wh)
+
+	wh2 := InitHandler(nil).
+		WithMethodHandler(http.MethodGet, helloHandler)
+
+	wr.Handle(resources.TestRouteTwo, wh2)
+
+	methods := []string{http.MethodDelete, http.MethodGet}
+	routes := []string{resources.TestRoute, resources.TestRouteTwo}
+
+	// Act
+	_ = wr.Walk(func(method string, route string) error {
+		index := func(m string, methods []string) int {
+			for i, mthd := range methods {
+				if mthd == m {
+					return i
+				}
+			}
+			return 0
+		}
+
+		i := index(method, methods)
+
+		// Assert
+		assert.Equal(t, route, routes[i])
+
+		return nil
+	})
+}
+
+func TestRouter_Walk_Error(t *testing.T) {
+	// Arrange
+	wr := InitRouter(nil)
+
+	helloHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Hello)
+	}
+
+	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, resources.Goodbye)
+	}
+
+	wh := InitHandler(nil).
+		WithMethodHandler(http.MethodDelete, goodbyeHandler)
+
+	wr.Handle(resources.TestRoute, wh)
+
+	wh2 := InitHandler(nil).
+		WithMethodHandler(http.MethodGet, helloHandler)
+
+	wr.Handle(resources.TestRouteThree, wh2)
+
+	// Act
+	err := wr.Walk(func(method string, route string) error {
+		index := func(m string, methods []string) int {
+			for i, mthd := range methods {
+				if mthd == m {
+					return i
+				}
+			}
+			return 0
+		}
+
+		if index(method, resources.TestMethods) == 0 {
+			return resources.TestError
+		}
+
+		return nil
+	})
+
+	// Assert
+	assert.Error(t, err)
+	assert.Equal(t, resources.TestError, err)
+}

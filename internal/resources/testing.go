@@ -3,6 +3,7 @@ package resources
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"reflect"
 )
@@ -19,6 +20,8 @@ const (
 	TestFilePath                    = "./internal/resources/testing.go"
 	TestContentType                 = "application/json"
 	TestRoute                       = "/test/route"
+	TestRouteTwo                    = "/test/route/two"
+	TestRouteThree                  = "/test/route/three"
 	TestRoutePathParams             = "/test/route/{param}"
 	TestRoutePathParamHello         = "/test/route/hello"
 	TestRoutePathParamGoodbye       = "/test/route/goodbye"
@@ -48,4 +51,6 @@ var (
 		return m
 	}
 	TestListenAndServeAddr = fmt.Sprintf("localhost:3000")
+	TestMethods            = []string{http.MethodDelete, http.MethodGet}
+	TestRoutes             = []string{TestRoute, TestRouteTwo}
 )
