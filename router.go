@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/syke99/waggy/internal/json"
+	"github.com/syke99/waggy/middleware"
 	"net/http"
 	"os"
 	"strconv"
@@ -23,6 +24,7 @@ type Router struct {
 	noRoute      WaggyError
 	noRouteFunc  http.HandlerFunc
 	FullServer   bool
+	middleWare   []middleware.MiddleWare
 }
 
 // InitRouter initializes a new Router and returns a pointer
@@ -118,6 +120,19 @@ func (wr *Router) WithNoRouteHandler(fn http.HandlerFunc) *Router {
 func (wr *Router) Logger() *Logger {
 	return wr.logger
 }
+
+//
+//func (wr *Router) Use(middleWare ...middleware.MiddleWare) {
+//	for _, mw := range middleWare {
+//		wr.middleWare = append(wr.middleWare, mw)
+//	}
+//}
+//
+//func (wr *Router) passThroughMiddleWare(w http.ResponseWriter, r *http.Request) {
+//	for _, mw := range wr.middleWare {
+//		mw(wr.ServeHTTP(w, r))
+//	}
+//}
 
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
