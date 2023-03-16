@@ -18,13 +18,15 @@ import (
 // Handle on the return router and provide a route for the *Handler
 // you provide
 type Router struct {
-	logger       *Logger
-	router       map[string]*Handler
-	handlerOrder map[int]string
-	noRoute      WaggyError
-	noRouteFunc  http.HandlerFunc
-	FullServer   bool
-	middleWare   []middleware.MiddleWare
+	logger            *Logger
+	router            map[string]*Handler
+	regexRouter       map[string]*Handler
+	handlerOrder      map[int]string
+	handlerRegexOrder map[int]string
+	noRoute           WaggyError
+	noRouteFunc       http.HandlerFunc
+	FullServer        bool
+	middleWare        []middleware.MiddleWare
 }
 
 // InitRouter initializes a new Router and returns a pointer
@@ -41,9 +43,11 @@ func InitRouter(cgi *FullServer) *Router {
 	}
 
 	r := Router{
-		logger:       nil,
-		router:       make(map[string]*Handler),
-		handlerOrder: make(map[int]string),
+		logger:            nil,
+		router:            make(map[string]*Handler),
+		regexRouter:       make(map[string]*Handler),
+		handlerOrder:      make(map[int]string),
+		handlerRegexOrder: make(map[int]string),
 		noRoute: WaggyError{
 			Title:    "Resource not found",
 			Detail:   "route not found",
@@ -70,13 +74,38 @@ func (wr *Router) Handle(route string, handler *Handler) *Router {
 	return wr
 }
 
-// Routes returns all the routes that a *Router has
-// *Handlers set for in the order that they were added
+// HandleRegex allows you to map a *Handler for a specific route. Just
+// in the popular gorilla/mux router, you can specify path parameters
+// by wrapping them with {} and they can later be accessed by calling
+// Vars(r)
+func (wr *Router) HandleRegex(route string, handler *Handler) *Router {
+	handler.route = route
+	handler.inheritLogger(wr.logger)
+	handler.inheritFullServerFlag(wr.FullServer)
+	wr.regexRouter[route] = handler
+	wr.handlerRegexOrder[len(wr.regexRouter)] = route
+
+	return wr
+}
+
+// Routes returns all the routes, followed by any regex routes,
+// that a *Router has *Handlers set for in the order that they
+// were added.
 func (wr *Router) Routes() []string {
+	if len(wr.router) == 0 {
+		return nil
+	}
+
 	r := make([]string, 0)
 
-	for i := 0; i <= len(wr.router); i++ {
+	for i := 1; i <= len(wr.router); i++ {
 		r = append(r, wr.handlerOrder[i])
+	}
+
+	if len(wr.regexRouter) != 0 {
+		for i := 1; i <= len(wr.regexRouter); i++ {
+			r = append(r, wr.handlerRegexOrder[i])
+		}
 	}
 
 	return r
@@ -128,19 +157,91 @@ func (wr *Router) Use(middleWare ...middleware.MiddleWare) {
 	}
 }
 
+func (wr *Router) lookForExactRouteHandler(route *string, requestRoute string, r *http.Request) *Handler {
+	var key string
+	var h *Handler
+
+	for key, h = range wr.router {
+		if key == "/" {
+			continue
+		}
+
+		if requestRoute[:1] == "/" {
+			requestRoute = requestRoute[1:]
+		}
+
+		splitRoute := strings.Split(requestRoute, "/")
+
+		if key[:1] == "/" {
+			key = key[1:]
+		}
+
+		splitKey := strings.Split(key, "/")
+
+		for i, section := range splitKey {
+			if len(section) == 0 {
+				continue
+			}
+
+			beginning := section[:1]
+			end := section[len(section)-1:]
+
+			// check if this section is a query param
+			if (beginning == "{" &&
+				end == "}") && (len(splitRoute) != len(splitKey)) {
+				continue
+			}
+
+			if (beginning == "{" &&
+				end == "}") && (len(splitRoute) == len(splitKey)) {
+				route = &key
+			}
+
+			// if the route sections don't match and aren't query
+			// params, break out as these are not the correctly matched
+			// routes
+			if i > len(splitRoute) || splitRoute[i] != section && *route == "" {
+				break
+			}
+
+			if len(splitKey) > len(splitRoute) &&
+				i == len(splitRoute) &&
+				*route == "" {
+				route = &key
+			}
+
+			// if the end of splitRoute is reached, and we haven't
+			// broken out of the loop to move on to the next route,
+			// then the routes match
+			if (i == len(splitKey)-1 || i == len(splitRoute)) &&
+				*route == "" {
+				route = &key
+			}
+		}
+
+		if *route == "" {
+			ctx := context.WithValue(r.Context(), resources.MatchedRoute, requestRoute)
+
+			r = r.Clone(ctx)
+		}
+	}
+
+	return h
+}
+
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
 func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rt := ""
 
 	r.URL.Opaque = ""
-	rRoute := r.URL.Path
+	requestRoute := r.URL.Path
 
 	var handler *Handler
 
 	var ok bool
 
-	if rRoute == "" || rRoute == "/" {
+	if requestRoute == "" || requestRoute == "/" {
 		if handler, ok = wr.router["/"]; !ok {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			wr.noRouteResponse(w, r)
@@ -153,79 +254,16 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if handler == nil {
-		var key string
-		var h *Handler
+		handler = wr.lookForExactRouteHandler(&rt, requestRoute, r)
+	}
 
-		for key, h = range wr.router {
-			if key == "/" {
-				continue
-			}
+	if handler == nil {
+		// TODO: look through regex routes
+	}
 
-			if rRoute[:1] == "/" {
-				rRoute = rRoute[1:]
-			}
-
-			splitRoute := strings.Split(rRoute, "/")
-
-			if key[:1] == "/" {
-				key = key[1:]
-			}
-
-			splitKey := strings.Split(key, "/")
-
-			for i, section := range splitKey {
-				if len(section) == 0 {
-					continue
-				}
-
-				beginning := section[:1]
-				end := section[len(section)-1:]
-
-				// check if this section is a query param
-				if (beginning == "{" &&
-					end == "}") && (len(splitRoute) != len(splitKey)) {
-					continue
-				}
-
-				if (beginning == "{" &&
-					end == "}") && (len(splitRoute) == len(splitKey)) {
-					rt = key
-				}
-
-				// if the route sections don't match and aren't query
-				// params, break out as these are not the correctly matched
-				// routes
-				if i > len(splitRoute) || splitRoute[i] != section && rt == "" {
-					break
-				}
-
-				if len(splitKey) > len(splitRoute) &&
-					i == len(splitRoute) &&
-					rt == "" {
-					rt = key
-				}
-
-				// if the end of splitRoute is reached, and we haven't
-				// broken out of the loop to move on to the next route,
-				// then the routes match
-				if (i == len(splitKey)-1 || i == len(splitRoute)) &&
-					rt == "" {
-					rt = key
-				}
-			}
-
-			if rt != "" {
-				ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
-
-				r = r.Clone(ctx)
-
-				handler = h
-			}
-		}
-
-		if handler == nil {
-			wr.noRouteResponse(w, r)
-		}
+	if handler == nil {
+		wr.noRouteResponse(w, r)
+		return
 	}
 
 	if len(wr.middleWare) != 0 {
