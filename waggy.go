@@ -137,7 +137,7 @@ func ServeFile(w http.ResponseWriter, contentType string, filePath string) {
 	}
 }
 
-func serveThroughMiddleWare(middle []middleware.MiddleWare, handler http.HandlerFunc) http.HandlerFunc {
+func ServeThroughMiddleWare(middle []middleware.MiddleWare, handler http.HandlerFunc) http.HandlerFunc {
 	for _, mw := range middle {
 		handler = mw(handler).ServeHTTP
 	}

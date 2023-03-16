@@ -229,7 +229,7 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(wr.middleWare) != 0 {
-		serveThroughMiddleWare(wr.middleWare, handler.ServeHTTP)(w, r)
+		ServeThroughMiddleWare(wr.middleWare, handler.ServeHTTP)(w, r)
 		return
 	}
 
