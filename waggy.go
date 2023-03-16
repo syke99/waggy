@@ -3,6 +3,7 @@ package waggy
 import (
 	"errors"
 	"fmt"
+	"github.com/syke99/waggy/middleware"
 	"io"
 	"net/http"
 	"net/http/cgi"
@@ -134,4 +135,14 @@ func ServeFile(w http.ResponseWriter, contentType string, filePath string) {
 		w.Header().Set("content-type", "application/problem+json")
 		fmt.Fprint(w, errJSON)
 	}
+}
+
+func serveThroughMiddleWare(middle []middleware.MiddleWare, handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
+	for _, mw := range middle {
+		//handler = mw(handler).(http.HandlerFunc)
+		handler = mw(handler).ServeHTTP
+	}
+
+	handler.ServeHTTP(w, r)
+	return
 }

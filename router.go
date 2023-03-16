@@ -121,18 +121,12 @@ func (wr *Router) Logger() *Logger {
 	return wr.logger
 }
 
-//
-//func (wr *Router) Use(middleWare ...middleware.MiddleWare) {
-//	for _, mw := range middleWare {
-//		wr.middleWare = append(wr.middleWare, mw)
-//	}
-//}
-//
-//func (wr *Router) passThroughMiddleWare(w http.ResponseWriter, r *http.Request) {
-//	for _, mw := range wr.middleWare {
-//		mw(wr.ServeHTTP(w, r))
-//	}
-//}
+// Use allows you to set Middleware http.Handlers for a *Router
+func (wr *Router) Use(middleWare ...middleware.MiddleWare) {
+	for _, mw := range middleWare {
+		wr.middleWare = append(wr.middleWare, mw)
+	}
+}
 
 // ServeHTTP satisfies the http.Handler interface and calls the stored
 // handler at the route of the incoming HTTP request
@@ -142,8 +136,12 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Opaque = ""
 	rRoute := r.URL.Path
 
+	var handler *Handler
+
+	var ok bool
+
 	if rRoute == "" || rRoute == "/" {
-		if handler, ok := wr.router["/"]; !ok {
+		if handler, ok = wr.router["/"]; !ok {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			wr.noRouteResponse(w, r)
 			return
@@ -151,81 +149,91 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			ctx := context.WithValue(r.Context(), resources.RootRoute, true)
 
 			r = r.Clone(ctx)
-
-			handler.ServeHTTP(w, r)
-			return
 		}
 	}
 
-	for key, handler := range wr.router {
-		if key == "/" {
-			continue
-		}
+	if handler == nil {
+		var key string
+		var h *Handler
 
-		if rRoute[:1] == "/" {
-			rRoute = rRoute[1:]
-		}
-
-		splitRoute := strings.Split(rRoute, "/")
-
-		if key[:1] == "/" {
-			key = key[1:]
-		}
-
-		splitKey := strings.Split(key, "/")
-
-		for i, section := range splitKey {
-			if len(section) == 0 {
+		for key, h = range wr.router {
+			if key == "/" {
 				continue
 			}
 
-			beginning := section[:1]
-			end := section[len(section)-1:]
-
-			// check if this section is a query param
-			if (beginning == "{" &&
-				end == "}") && (len(splitRoute) != len(splitKey)) {
-				continue
+			if rRoute[:1] == "/" {
+				rRoute = rRoute[1:]
 			}
 
-			if (beginning == "{" &&
-				end == "}") && (len(splitRoute) == len(splitKey)) {
-				rt = key
+			splitRoute := strings.Split(rRoute, "/")
+
+			if key[:1] == "/" {
+				key = key[1:]
 			}
 
-			// if the route sections don't match and aren't query
-			// params, break out as these are not the correctly matched
-			// routes
-			if i > len(splitRoute) || splitRoute[i] != section && rt == "" {
-				break
+			splitKey := strings.Split(key, "/")
+
+			for i, section := range splitKey {
+				if len(section) == 0 {
+					continue
+				}
+
+				beginning := section[:1]
+				end := section[len(section)-1:]
+
+				// check if this section is a query param
+				if (beginning == "{" &&
+					end == "}") && (len(splitRoute) != len(splitKey)) {
+					continue
+				}
+
+				if (beginning == "{" &&
+					end == "}") && (len(splitRoute) == len(splitKey)) {
+					rt = key
+				}
+
+				// if the route sections don't match and aren't query
+				// params, break out as these are not the correctly matched
+				// routes
+				if i > len(splitRoute) || splitRoute[i] != section && rt == "" {
+					break
+				}
+
+				if len(splitKey) > len(splitRoute) &&
+					i == len(splitRoute) &&
+					rt == "" {
+					rt = key
+				}
+
+				// if the end of splitRoute is reached, and we haven't
+				// broken out of the loop to move on to the next route,
+				// then the routes match
+				if (i == len(splitKey)-1 || i == len(splitRoute)) &&
+					rt == "" {
+					rt = key
+				}
 			}
 
-			if len(splitKey) > len(splitRoute) &&
-				i == len(splitRoute) &&
-				rt == "" {
-				rt = key
-			}
+			if rt != "" {
+				ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
 
-			// if the end of splitRoute is reached, and we haven't
-			// broken out of the loop to move on to the next route,
-			// then the routes match
-			if (i == len(splitKey)-1 || i == len(splitRoute)) &&
-				rt == "" {
-				rt = key
+				r = r.Clone(ctx)
+
+				handler = h
 			}
 		}
 
-		if rt != "" {
-			ctx := context.WithValue(r.Context(), resources.MatchedRoute, rRoute)
-
-			r = r.Clone(ctx)
-
-			handler.ServeHTTP(w, r)
-			return
+		if handler == nil {
+			wr.noRouteResponse(w, r)
 		}
 	}
 
-	wr.noRouteResponse(w, r)
+	if len(wr.middleWare) != 0 {
+		serveThroughMiddleWare(wr.middleWare, handler.ServeHTTP, w, r)
+		return
+	}
+
+	handler.ServeHTTP(w, r)
 	return
 }
 

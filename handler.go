@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/syke99/waggy/internal/json"
+	"github.com/syke99/waggy/middleware"
 	"net/http"
 	"net/url"
 	"os"
@@ -28,6 +29,7 @@ type Handler struct {
 	parentLogger         *Logger
 	parentLoggerOverride bool
 	FullServer           bool
+	middleWare           []middleware.MiddleWare
 }
 
 // InitHandler initialized a new Handler and returns
@@ -237,6 +239,13 @@ func (wh *Handler) WithRestrictedMethodHandler(fn http.HandlerFunc) *Handler {
 	return wh
 }
 
+// Use allows you to set inline Middleware http.Handlers for a specific *Handler
+func (wh *Handler) Use(middleWare ...middleware.MiddleWare) {
+	for _, mw := range middleWare {
+		wh.middleWare = append(wh.middleWare, mw)
+	}
+}
+
 // ServeHTTP serves the route
 func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if _, ok := wh.restrictedMethods[r.Method]; ok {
@@ -369,5 +378,12 @@ func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r = r.Clone(ctx)
 
-	wh.handlerMap[r.Method](w, r)
+	handler, _ := wh.handlerMap[r.Method]
+
+	if len(wh.middleWare) != 0 {
+		serveThroughMiddleWare(wh.middleWare, handler, w, r)
+		return
+	}
+
+	handler(w, r)
 }
