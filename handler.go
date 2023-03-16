@@ -381,7 +381,7 @@ func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler, _ := wh.handlerMap[r.Method]
 
 	if len(wh.middleWare) != 0 {
-		serveThroughMiddleWare(wh.middleWare, handler, w, r)
+		serveThroughMiddleWare(wh.middleWare, handler.ServeHTTP)(w, r)
 		return
 	}
 
