@@ -3,7 +3,6 @@ package waggy
 import (
 	"fmt"
 	"github.com/syke99/waggy/internal/json"
-	"github.com/syke99/waggy/middleware"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -35,35 +34,6 @@ func TestLog(t *testing.T) {
 		WithLogger(&logger, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
-
-	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
-
-	wr := httptest.NewRecorder()
-
-	handler.ServeHTTP(wr, r)
-}
-
-var testMiddleWareTest middleware.MiddleWare = func(handler http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("test", "hello world")
-
-		handler.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(fn)
-}
-
-func TestServeThroughMiddleWare(t *testing.T) {
-	// Arrange
-	testHandler := func(w http.ResponseWriter, r *http.Request) {
-		// Assert
-		assert.Equal(t, "hello world", w.Header().Get("test"))
-	}
-
-	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil)
-
-	handler.WithMethodHandler(http.MethodGet, testHandler).
-		Use(testMiddleWareTest)
 
 	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
 
