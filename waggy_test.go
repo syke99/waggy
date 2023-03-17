@@ -60,7 +60,7 @@ func TestServeThroughMiddleWare(t *testing.T) {
 		assert.Equal(t, "hello world", w.Header().Get("test"))
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
+	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.WithMethodHandler(http.MethodGet, testHandler).
 		Use(testMiddleWareTest)
