@@ -11,9 +11,9 @@ import (
 	"github.com/syke99/waggy/internal/resources"
 )
 
-func TestInitRouter(t *testing.T) {
+func TestNewRouter(t *testing.T) {
 	// Act
-	w := InitRouter(nil)
+	w := NewRouter(nil)
 
 	// Assert
 	assert.IsType(t, &Router{}, w)
@@ -21,10 +21,10 @@ func TestInitRouter(t *testing.T) {
 	assert.Equal(t, 0, len(w.router))
 }
 
-func TestInitRouter_Flg_Parsable(t *testing.T) {
+func TestNewRouter_Flg_Parsable(t *testing.T) {
 	// Act
 	var flg FullServer = "1"
-	w := InitRouter(&flg)
+	w := NewRouter(&flg)
 
 	// Assert
 	assert.IsType(t, &Router{}, w)
@@ -33,10 +33,10 @@ func TestInitRouter_Flg_Parsable(t *testing.T) {
 	assert.True(t, w.FullServer)
 }
 
-func TestInitRouter_Flg_NotParsable(t *testing.T) {
+func TestNewRouter_Flg_NotParsable(t *testing.T) {
 	// Act
 	var flg FullServer = "adsf"
-	w := InitRouter(&flg)
+	w := NewRouter(&flg)
 
 	// Assert
 	assert.IsType(t, &Router{}, w)
@@ -47,10 +47,10 @@ func TestInitRouter_Flg_NotParsable(t *testing.T) {
 
 func TestRouter_Handle(t *testing.T) {
 	// Arrange
-	w := InitRouter(nil)
+	w := NewRouter(nil)
 
-	helloHandler := InitHandler(nil)
-	goodbyeHandler := InitHandler(nil)
+	helloHandler := NewHandler(nil)
+	goodbyeHandler := NewHandler(nil)
 
 	// Act
 	w.Handle("/hello", helloHandler)
@@ -63,7 +63,7 @@ func TestRouter_Handle(t *testing.T) {
 
 func TestRouter_WithLogger(t *testing.T) {
 	// Arrange
-	w := InitRouter(nil)
+	w := NewRouter(nil)
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
@@ -84,7 +84,7 @@ func TestRouter_WithLogger(t *testing.T) {
 
 func TestRouter_WithDefaultLogger(t *testing.T) {
 	// Arrange
-	w := InitRouter(nil)
+	w := NewRouter(nil)
 
 	// Act
 	w.WithDefaultLogger()
@@ -105,7 +105,7 @@ func TestRouter_Logger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitRouter(nil).
+	w := NewRouter(nil).
 		WithLogger(testLogger)
 
 	// Act
@@ -123,7 +123,7 @@ func TestRouter_Logger(t *testing.T) {
 
 func TestRouter_Logger_Default(t *testing.T) {
 	// Arrange
-	w := InitRouter(nil).
+	w := NewRouter(nil).
 		WithDefaultLogger()
 
 	// Act
@@ -145,13 +145,13 @@ func TestRouter_ServeHTTP_NoBaseRoute(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wr := InitRouter(nil).WithNoRouteHandler(goodbyeHandler)
+	wr := NewRouter(nil).WithNoRouteHandler(goodbyeHandler)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRoute, wh)
@@ -175,16 +175,16 @@ func TestRouter_ServeHTTP_BaseRoute(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wr := InitRouter(nil)
+	wr := NewRouter(nil)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodGet, helloHandler)
 
-	wh2 := InitHandler(nil).WithMethodHandler(http.MethodGet, goodbyeHandler)
+	wh2 := NewHandler(nil).WithMethodHandler(http.MethodGet, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh).Handle("/", wh2)
 
@@ -203,13 +203,13 @@ func TestRouter_ServeHTTP_BaseRoute(t *testing.T) {
 
 func TestRouter_ServeHTTP_MethodGet(t *testing.T) {
 	// Arrange
-	wr := InitRouter(nil)
+	wr := NewRouter(nil)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRoute, wh)
@@ -229,13 +229,13 @@ func TestRouter_ServeHTTP_MethodGet(t *testing.T) {
 
 func TestRouter_ServeHTTP_MethodDelete(t *testing.T) {
 	// Arrange
-	wr := InitRouter(nil)
+	wr := NewRouter(nil)
 
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh)
@@ -255,7 +255,7 @@ func TestRouter_ServeHTTP_MethodDelete(t *testing.T) {
 
 func TestRouter_Walk(t *testing.T) {
 	// Arrange
-	wr := InitRouter(nil)
+	wr := NewRouter(nil)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -265,12 +265,12 @@ func TestRouter_Walk(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh)
 
-	wh2 := InitHandler(nil).
+	wh2 := NewHandler(nil).
 		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRouteTwo, wh2)
@@ -300,7 +300,7 @@ func TestRouter_Walk(t *testing.T) {
 
 func TestRouter_Walk_Error(t *testing.T) {
 	// Arrange
-	wr := InitRouter(nil)
+	wr := NewRouter(nil)
 
 	helloHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Hello)
@@ -310,12 +310,12 @@ func TestRouter_Walk_Error(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	wh := InitHandler(nil).
+	wh := NewHandler(nil).
 		WithMethodHandler(http.MethodDelete, goodbyeHandler)
 
 	wr.Handle(resources.TestRoute, wh)
 
-	wh2 := InitHandler(nil).
+	wh2 := NewHandler(nil).
 		WithMethodHandler(http.MethodGet, helloHandler)
 
 	wr.Handle(resources.TestRouteThree, wh2)

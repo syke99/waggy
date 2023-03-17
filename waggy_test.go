@@ -3,7 +3,6 @@ package waggy
 import (
 	"fmt"
 	"github.com/syke99/waggy/internal/json"
-	"github.com/syke99/waggy/middleware"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -31,39 +30,10 @@ func TestLog(t *testing.T) {
 		assert.NotNil(t, l)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil).
+	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil).
 		WithLogger(&logger, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
-
-	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
-
-	wr := httptest.NewRecorder()
-
-	handler.ServeHTTP(wr, r)
-}
-
-var testMiddleWareTest middleware.MiddleWare = func(handler http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("test", "hello world")
-
-		handler.ServeHTTP(w, r)
-	}
-
-	return http.HandlerFunc(fn)
-}
-
-func TestServeThroughMiddleWare(t *testing.T) {
-	// Arrange
-	testHandler := func(w http.ResponseWriter, r *http.Request) {
-		// Assert
-		assert.Equal(t, "hello world", w.Header().Get("test"))
-	}
-
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
-
-	handler.WithMethodHandler(http.MethodGet, testHandler).
-		Use(testMiddleWareTest)
 
 	r, _ := http.NewRequest(http.MethodGet, resources.TestRoutePathParamGoodbye, nil)
 
@@ -81,7 +51,7 @@ func TestLog_Error(t *testing.T) {
 		assert.Nil(t, l)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil).
+	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil).
 		WithLogger(nil, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
@@ -109,7 +79,7 @@ func TestVars_Hello(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
+	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
 
@@ -138,7 +108,7 @@ func TestVars_Goodbye(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoutePathParams, nil)
+	handler := NewHandlerWithRoute(resources.TestRoutePathParams, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
 
@@ -169,7 +139,7 @@ func TestVars_NoPathParams(t *testing.T) {
 		}
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute, nil)
+	handler := NewHandlerWithRoute(resources.TestRoute, nil)
 
 	handler.WithMethodHandler(http.MethodGet, greetingHandler)
 
@@ -191,7 +161,7 @@ func TestWriteDefaultResponse(t *testing.T) {
 		WriteDefaultResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute, nil).
+	handler := NewHandlerWithRoute(resources.TestRoute, nil).
 		WithMethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultResponse(resources.TestContentType, []byte(resources.Hello))
 
@@ -220,7 +190,7 @@ func TestWriteDefaultErrorResponse(t *testing.T) {
 		WriteDefaultErrorResponse(w, r)
 	}
 
-	handler := InitHandlerWithRoute(resources.TestRoute, nil).
+	handler := NewHandlerWithRoute(resources.TestRoute, nil).
 		WithMethodHandler(http.MethodGet, defRespHandler).
 		WithDefaultErrorResponse(testErr, http.StatusInternalServerError)
 
@@ -274,7 +244,7 @@ func TestServeFile_NoPathToFile(t *testing.T) {
 
 func TestServe_Router(t *testing.T) {
 	// Arrange
-	w := InitRouter(nil)
+	w := NewRouter(nil)
 
 	// Act
 	err := Serve(w)
@@ -285,7 +255,7 @@ func TestServe_Router(t *testing.T) {
 
 func TestServe_Handler(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	err := Serve(w)
@@ -295,7 +265,7 @@ func TestServe_Handler(t *testing.T) {
 }
 
 func TestEmptyRoute(t *testing.T) {
-	handler := InitHandlerWithRoute("/", nil)
+	handler := NewHandlerWithRoute("/", nil)
 	handler.WithMethodHandler(http.MethodGet, func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Fprintln(writer, "Don't panic! 🐿️")
 	})

@@ -27,9 +27,9 @@ type Router struct {
 	middleWare   []middleware.MiddleWare
 }
 
-// InitRouter initializes a new Router and returns a pointer
+// NewRouter initializes a new Router and returns a pointer
 // to it
-func InitRouter(cgi *FullServer) *Router {
+func NewRouter(cgi *FullServer) *Router {
 	var o bool
 	var err error
 
@@ -126,6 +126,10 @@ func (wr *Router) Use(middleWare ...middleware.MiddleWare) {
 	for _, mw := range middleWare {
 		wr.middleWare = append(wr.middleWare, mw)
 	}
+}
+
+func (wr *Router) Middleware() []middleware.MiddleWare {
+	return wr.middleWare
 }
 
 // ServeHTTP satisfies the http.Handler interface and calls the stored
@@ -226,11 +230,6 @@ func (wr *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if handler == nil {
 			wr.noRouteResponse(w, r)
 		}
-	}
-
-	if len(wr.middleWare) != 0 {
-		ServeThroughMiddleWare(wr.middleWare, handler.ServeHTTP)(w, r)
-		return
 	}
 
 	handler.ServeHTTP(w, r)
