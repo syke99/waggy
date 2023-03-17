@@ -20,6 +20,7 @@ type FullServer string
 type WaggyEntryPoint interface {
 	*Router | *Handler
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
+	Middleware() []middleware.MiddleWare
 }
 
 // WriteDefaultResponse returns the result (number of bytes written
@@ -77,6 +78,31 @@ func Vars(r *http.Request) map[string]string {
 // used in the call to Serve and not accidentally allow calling
 // a bare http.Handler
 func Serve[W WaggyEntryPoint](entryPoint W) error {
+	mw := entryPoint.Middleware()
+
+	if mw != nil {
+		var hf http.HandlerFunc
+
+		switch any(entryPoint).(type) {
+		case *Handler:
+			h := any(entryPoint).(*Handler)
+
+			hf = h.ServeHTTP
+
+			hf = middleware.PassThroughMiddleWare(mw, hf)
+		case *Router:
+			r := any(entryPoint).(*Router)
+
+			hf = r.ServeHTTP
+
+			hf = middleware.PassThroughMiddleWare(mw, hf)
+		}
+
+		handler := http.Handler(hf)
+
+		return cgi.Serve(handler)
+	}
+
 	return cgi.Serve(entryPoint)
 }
 
@@ -87,6 +113,32 @@ func ListenAndServe[W WaggyEntryPoint](addr string, entryPoint W) error {
 	if entryPoint == nil {
 		return resources.NoWaggyEntryPointProvided
 	}
+
+	mw := entryPoint.Middleware()
+
+	if mw != nil {
+		var hf http.HandlerFunc
+
+		switch any(entryPoint).(type) {
+		case *Handler:
+			h := any(entryPoint).(*Handler)
+
+			hf = h.ServeHTTP
+
+			hf = middleware.PassThroughMiddleWare(mw, hf)
+		case *Router:
+			r := any(entryPoint).(*Router)
+
+			hf = r.ServeHTTP
+
+			hf = middleware.PassThroughMiddleWare(mw, hf)
+		}
+
+		handler := http.Handler(hf)
+
+		return http.ListenAndServe(addr, handler)
+	}
+
 	return http.ListenAndServe(addr, entryPoint)
 }
 
@@ -135,14 +187,4 @@ func ServeFile(w http.ResponseWriter, contentType string, filePath string) {
 		w.Header().Set("content-type", "application/problem+json")
 		fmt.Fprint(w, errJSON)
 	}
-}
-
-func serveThroughMiddleWare(middle []middleware.MiddleWare, handler http.HandlerFunc, w http.ResponseWriter, r *http.Request) {
-	for _, mw := range middle {
-		//handler = mw(handler).(http.HandlerFunc)
-		handler = mw(handler).ServeHTTP
-	}
-
-	handler.ServeHTTP(w, r)
-	return
 }

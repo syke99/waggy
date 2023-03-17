@@ -19,9 +19,9 @@ func TestAllHTTPMethods(t *testing.T) {
 	assert.Equal(t, "ALL", all)
 }
 
-func TestInitHandler(t *testing.T) {
+func TestNewHandler(t *testing.T) {
 	// Act
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Assert
 	assert.IsType(t, &Handler{}, w)
@@ -32,9 +32,9 @@ func TestInitHandler(t *testing.T) {
 	assert.IsType(t, map[string]http.HandlerFunc{}, w.handlerMap)
 }
 
-func TestInitHandlerWithRoute(t *testing.T) {
+func TestNewHandlerWithRoute(t *testing.T) {
 	// Act
-	w := InitHandlerWithRoute(resources.TestRoute, nil)
+	w := NewHandlerWithRoute(resources.TestRoute, nil)
 
 	// Assert
 	assert.IsType(t, &Handler{}, w)
@@ -47,7 +47,7 @@ func TestInitHandlerWithRoute(t *testing.T) {
 
 func TestHandler_WithDefaultResponse(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithDefaultResponse(resources.TestContentType, []byte(resources.HelloWorld))
@@ -64,7 +64,7 @@ func TestHandler_WithDefaultResponse(t *testing.T) {
 
 func TestHandler_WithDefaultErrorResponse(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 	testErr := WaggyError{
 		Type:   resources.TestRoute,
 		Title:  "",
@@ -96,7 +96,7 @@ func TestHandler_MethodHandler(t *testing.T) {
 	goodbyeHandler := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithMethodHandler(http.MethodGet, helloHandler)
@@ -122,7 +122,7 @@ func TestHandler_MethodHandler(t *testing.T) {
 
 func TestHandler_RestrictMethods(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w = w.RestrictMethods(http.MethodGet,
@@ -144,7 +144,7 @@ func TestHandler_RestrictMethods(t *testing.T) {
 
 func TestHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 	test := "this isn't an http method"
 
 	// Act
@@ -159,7 +159,7 @@ func TestHandler_RestrictMethods_NotHTTPMethod(t *testing.T) {
 
 func TestHandler_WithRestrictedMethodHandler(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 	testHandler := func(w http.ResponseWriter, r *http.Request) {}
 
 	// Act
@@ -171,7 +171,7 @@ func TestHandler_WithRestrictedMethodHandler(t *testing.T) {
 
 func TestHandler_WithRestrictedMethodHandler_NoHandler(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithRestrictedMethodHandler(nil)
@@ -186,7 +186,7 @@ func TestHandler_WithLogger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithLogger(testLogger, nil)
@@ -203,14 +203,14 @@ func TestHandler_WithLogger(t *testing.T) {
 
 func TestHandler_WithLogger_ParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter(nil).
+	r := NewRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithLogger(testLogger, OverrideParentLogger())
@@ -229,7 +229,7 @@ func TestHandler_WithLogger_ParentOverride(t *testing.T) {
 
 func TestHandler_WithDefaultLogger(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	// Act
 	w.WithDefaultLogger()
@@ -250,7 +250,7 @@ func TestHandler_Logger(t *testing.T) {
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler(nil).
+	w := NewHandler(nil).
 		WithLogger(testLogger, nil)
 
 	// Act
@@ -268,14 +268,14 @@ func TestHandler_Logger(t *testing.T) {
 
 func TestHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter(nil).
+	r := NewRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	w.WithLogger(testLogger, nil)
 
@@ -296,14 +296,14 @@ func TestHandler_Logger_Inherited_NoParentOverride(t *testing.T) {
 
 func TestHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 	// Assert
-	r := InitRouter(nil).
+	r := NewRouter(nil).
 		WithDefaultLogger()
 
 	testLog := resources.TestLogFile
 	testLogLevel := Info
 	testLogger := NewLogger(testLogLevel, testLog)
 
-	w := InitHandler(nil)
+	w := NewHandler(nil)
 
 	w.WithLogger(testLogger, OverrideParentLogger())
 
@@ -324,7 +324,7 @@ func TestHandler_Logger_Inherited_ParentOverride(t *testing.T) {
 
 func TestHandler_ServeHTTP_RestrictedMethod_NoHandler(t *testing.T) {
 	// Arrange
-	w := InitHandler(nil).
+	w := NewHandler(nil).
 		RestrictMethods(http.MethodGet)
 
 	r, _ := http.NewRequest(http.MethodGet, resources.TestRoute, nil)
@@ -346,7 +346,7 @@ func TestHandler_ServeHTTP_RestrictedMethod_Handler(t *testing.T) {
 		fmt.Fprintln(w, "this method isn't allowed, sorry")
 	}
 
-	w := InitHandler(nil).
+	w := NewHandler(nil).
 		RestrictMethods(http.MethodGet).
 		WithRestrictedMethodHandler(noRouteHandler)
 
@@ -372,7 +372,7 @@ func TestHandler_ServeHTTP_MethodGet(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	w := InitHandlerWithRoute(resources.TestRoute, nil)
+	w := NewHandlerWithRoute(resources.TestRoute, nil)
 
 	w.WithMethodHandler(http.MethodGet, helloHandler)
 	w.WithMethodHandler(http.MethodDelete, goodbyeHandler)
@@ -429,7 +429,7 @@ func TestHandler_ServeHTTP_MethodDelete(t *testing.T) {
 		fmt.Fprintln(w, resources.Goodbye)
 	}
 
-	w := InitHandlerWithRoute(resources.TestRoute, nil)
+	w := NewHandlerWithRoute(resources.TestRoute, nil)
 
 	w.WithMethodHandler(http.MethodGet, helloHandler)
 	w.WithMethodHandler(http.MethodDelete, goodbyeHandler)

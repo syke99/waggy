@@ -32,9 +32,9 @@ type Handler struct {
 	middleWare           []middleware.MiddleWare
 }
 
-// InitHandler initialized a new Handler and returns
+// NewHandler initialized a new Handler and returns
 // a pointer to it
-func InitHandler(cgi *FullServer) *Handler {
+func NewHandler(cgi *FullServer) *Handler {
 	var o bool
 	var err error
 
@@ -61,10 +61,10 @@ func InitHandler(cgi *FullServer) *Handler {
 	return &w
 }
 
-// InitHandlerWithRoute initialized a new Handler with the provided
+// NewHandlerWithRoute initialized a new Handler with the provided
 // route and returns a pointer to it. It is intended to be used whenever
 // only compiling an individual *Handler instead of a full *Router
-func InitHandlerWithRoute(route string, cgi *FullServer) *Handler {
+func NewHandlerWithRoute(route string, cgi *FullServer) *Handler {
 	if len(route) >= 1 && route[:1] == "/" {
 		route = route[1:]
 	}
@@ -246,6 +246,10 @@ func (wh *Handler) Use(middleWare ...middleware.MiddleWare) {
 	}
 }
 
+func (wh *Handler) Middleware() []middleware.MiddleWare {
+	return wh.middleWare
+}
+
 // ServeHTTP serves the route
 func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if _, ok := wh.restrictedMethods[r.Method]; ok {
@@ -379,11 +383,6 @@ func (wh *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r = r.Clone(ctx)
 
 	handler, _ := wh.handlerMap[r.Method]
-
-	if len(wh.middleWare) != 0 {
-		serveThroughMiddleWare(wh.middleWare, handler, w, r)
-		return
-	}
 
 	handler(w, r)
 }
